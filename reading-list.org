@@ -1,0 +1,6 @@
+#+title: Reading List
+
+Here are some other papers which may be relevant.
+
+* DocCreator: A New Software for Creating Synthetic Ground-Truthed Document Images
+http://www.mdpi.com/2313-433X/3/4/62/pdf

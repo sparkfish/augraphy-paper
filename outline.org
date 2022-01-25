@@ -1,0 +1,22 @@
+* Paper Outline
+
+Here's a rough sketch of the paper's sections. We can organize the paper here at a high level and then track contents of each of the sections here in separate files.
+
+** Introduction
+- Image augmentation - some kinds of data are difficult to acquire
+- Problems with documents: denoising, classification, OCR
+- Augraphy and how it helps
+
+** Structure of Augraphy
+- Document layers
+- Augmentations
+- Base
+- Utilities
+
+** Competition
+- Overview
+- Participation
+- Results
+
+** Prior Art
+- DocCreator
