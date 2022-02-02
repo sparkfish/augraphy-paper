@@ -5,6 +5,7 @@ Here's a rough sketch of the paper's sections. We can organize the paper here at
 ** Introduction
 - Image augmentation - some kinds of data are difficult to acquire
 - Problems with documents: denoising, classification, OCR
+- Additional use cases: robustness testing for OCR, classification, etc.
 - Augraphy and how it helps
 
 ** Structure of Augraphy
@@ -19,4 +20,15 @@ Here's a rough sketch of the paper's sections. We can organize the paper here at
 - Results
 
 ** Prior Art
-- DocCreator
+There are several data augmentation tools/libraries already for image data augmentation. However, most of these tools are aimed at general use cases, and not document analysis. Hence there is a gap in the augmentation tool landscape that is filled by Augraphy.
+
+*** Augmentation tools for document analysis:
+- DocCreator (http://www.mdpi.com/2313-433X/3/4/62/pdf)
+
+*** General purpose augmentation tools for images:
+- Albumentations (https://albumentations.ai/); general purpose
+- Augmentor (https://github.com/mdbloice/Augmentor); general purpose
+- Augly (https://github.com/facebookresearch/AugLy); general purpose
+- imgaug (https://imgaug.readthedocs.io/en/latest/); general purpose
+- TorchIO (https://torchio.readthedocs.io/transforms/augmentation.html); this library seems to focus on medical image processing
+- AutoAugment (https://github.com/DeepVoltaire/AutoAugment); non-essential related work
