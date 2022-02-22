@@ -2,22 +2,66 @@
 
 Here's a rough sketch of the paper's sections. We can organize the paper here at a high level and then track contents of each of the sections here in separate files.
 
+** Abstract
 ** Introduction
-- Image augmentation - some kinds of data are difficult to acquire
-- Problems with documents: denoising, classification, OCR
-- Additional use cases: robustness testing for OCR, classification, etc.
-- Augraphy and how it helps
+*** Image augmentation: some kinds of data are difficult to acquire
+*** Noising and denoising to produce training and validation sets
+*** Document-specific problems: denoising, classification, OCR
+*** Augraphy and how it helps
 
 ** Structure of Augraphy
-- Document layers
-- Augmentations
-- Base
-- Utilities
+*** Mapping real documents to Augraphy layers
+**** Ink
+**** Paper
+**** Post
+*** Augmentations
+**** BadPhotoCopy
+**** BindingsAndFasteners
+**** BleedThrough
+**** BookBinding
+**** Brightness
+**** BrightnessTexturize
+**** DirtyDrum
+**** DirtyRollers
+**** Dithering
+**** DustyInk
+**** Faxify
+**** Folding
+**** Gamma
+**** Geometric
+**** Inkbleed
+**** Jpeg
+**** Letterpress
+**** LightingGradient
+**** LowInkBlobs
+**** LowInkLine
+**** LowInkPeriodicLines
+**** LowInkRandomLines
+**** Markup
+**** NoiseTexturize
+**** PageBorder
+**** PencilScribbles
+**** SubtleNoise
+*** Base
+**** Augmentation
+**** AugmentationPipeline
+**** AugmentationResult
+**** AugmentationSequence
+**** OneOf
+**** PaperFactory
+*** Utilities
+**** ComposePipelines
+**** FigshareDownloader
+**** Foreign
+**** Function
+**** ImageOverlay
+**** NoiseGenerator
+**** OverlayBuilder
 
 ** Competition
-- Overview
-- Participation
-- Results
+*** Overview
+*** Participation
+*** Results
 
 ** Prior Art
 There are several data augmentation tools/libraries already for image data augmentation. However, most of these tools are aimed at general use cases, and not document analysis. Hence there is a gap in the augmentation tool landscape that is filled by Augraphy.
