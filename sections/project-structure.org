@@ -1,0 +1,8 @@
+* Structure of Augraphy
+
+Augraphy is split into three parts: base, augmentations, and utilities. Together, these interact to allow practitioners to produce complex sequences of document image transformations, generating new synthetically-noisy datasets.
+
+
+** Base
+** Augmentations
+** Utilities
