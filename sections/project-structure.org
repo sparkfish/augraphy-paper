@@ -8,5 +8,48 @@ Realistically reproducing effects in document images requires rethinking how tho
 Effectively capturing processes like these in reproducible augmentations meant separating our model of a document augmentation pipeline into ink, paper, and post-processing layers, each containing some augmentations that modify the document image as it passes through. Augraphy pipelines, then, are constructed from three sequences of augmentations, to be applied one after the other in each of those phases. After transformations occur to the ink and to the paper separately, the pipeline fuses them together, simulating the printing of that ink on that paper. Changes to the document after that point happen within the post layer, where we might find effects like crumpling up the page and smoothing it out again, or using a pen to underline a section of text.
 
 ** Base
+The base classes exist to coordinate the compilation of discrete transformations into a larger pipeline, and to facilitate the operation and maintenance of these.
+
+There are four "main sequence" classes in ~augraphy.base~, which together provide the bulk of the library's functionality. Two additional classes, ~OneOf~ and ~PaperFactory~, provide additional variation to pipelines in ways explored soon.
+
+*** Augmentation
+*** AugmentationResult
+*** AugmentationSequence
+*** AugmentationPipeline
+*** OneOf
+*** PaperFactory
+
 ** Augmentations
+The ~base~ modules provide scaffolding for working with general transformations on document images, called Augmentations. The Augraphy Team has already included many such transforms in the standard library, and has also provided [[Utilities][tools]] for easily building new augmentations and integrating them into the Augraphy workflow.
+
+Augmentations come in many flavors and types, varying not only in their visual effect but in their software design. A brief profile of the project's augmentations continues below.
+
+*** BadPhotoCopy
+*** BindingsAndFasteners
+*** BleedThrough
+*** BookBinding
+*** Brightness
+*** BrightnessTexturize
+*** DirtyDrum
+*** DirtyRollers
+*** Dithering
+*** DustyInk
+*** Faxify
+*** Folding
+*** Gamma
+*** Geometric
+*** Inkbleed
+*** Jpeg
+*** Letterpress
+*** LightingGradient
+*** LowInkBlobs
+*** LowInkLine
+*** LowInkPeriodicLines
+*** LowInkRandomLines
+*** Markup
+*** NoiseTexturize
+*** PageBorder
+*** PencilScribbles
+*** SubtleNoise
+
 ** Utilities
