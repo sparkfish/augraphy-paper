@@ -13,11 +13,26 @@ The base classes exist to coordinate the compilation of discrete transformations
 There are four "main sequence" classes in ~augraphy.base~, which together provide the bulk of the library's functionality. Two additional classes, ~OneOf~ and ~PaperFactory~, provide additional variation to pipelines in ways explored soon.
 
 *** Augmentation
+Augmentation is the most basic class in the project, and essentially exists as a thin wrapper over a probability value in the interval [0,1]. Every augmentation object is constructed with a probability of that augmentation being applied during the execution of a pipeline containing it.
+
+This class also contains a method which interacts with the probability data, dynamically generating a second floating point probability value and using this to decide whether the augmentation should be applied at runtime.
+
 *** AugmentationResult
+After an augmentation is applied, the output of its execution is stored in an AugmentationResult object and passed forward through the pipeline. These objects also record an exact copy of the augmentation object that was instantiated and applied, as well as any metadata that might be relevant for debugging or other advanced use.
+
 *** AugmentationSequence
+A list of Augmentations -- together with the intent to apply those Augmentations in sequence -- determines an AugmentationSequence, which is itself both an Augmentation and callable. In practice, these are the model for the pipeline phases discussed previously; they are essentially lists of Augmentation constructor calls which produce callable Augmentation objects of the various flavors explored in [[Augmentations]]. AugmentationSequences are applied to the image during each of the [[AugmentationPipeline]] phases, and in each case yield the image, transformed by some of the Augmentations in the sequence.
+
 *** AugmentationPipeline
+The bulk of the innovation in Augraphy resides in the Augmentation pipeline, which is an abstraction over one or more events in a physical document's life. Events in this case could be the initial printing of the document when ink adhered to the paper material, or several weeks later when the document was adhered to a public board, annotated, defaced, and torn away from its securing staples. Fifty years later, our protagonist page resurfaces in the library archive during routine preservation-scanning efforts. Conservationists use delicate tools to gently position and record an image of the document, storing this in a public repository. An ~AugmentationPipeline~ can model this entire sequence of events, or any individual event within.
+
+Use of the Augraphy library to produce a dataset for model training -- which will be covered in some detail later -- boils down to the definition and application of one or more Pipelines to one or more images.
+
 *** OneOf
+Real-world processes generally allow objects to exist in multiple states over time. To model the possibility that a document image has undergone one and only one of a collection of Augmentations, we use OneOf, which simply selects one of those Augmentations from a given list, and uses this to modify the image.
+
 *** PaperFactory
+We often print on multiple sizes and kinds of paper, and out in the world we certainly /encounter/ such diverse documents. We introduce this variation into the ~AugmentationPipeline~ by including ~PaperFactory~ in the ~paper~ phase of the pipeline. This augmentation checks a local directory for images of paper to crop and scale and use as a background for the document image. The pipeline contains edge detection logic for lifting only text and other foreground objects from a clean image, greatly simplifying the "printing" onto another "sheet". Taken together, ~PaperFactory~ makes it effectively possible to re-print a document onto other surfaces, like hemp paper, cardboard, or wood.
 
 ** Augmentations
 The ~base~ modules provide scaffolding for working with general transformations on document images, called Augmentations. The Augraphy Team has already included many such transforms in the standard library, and has also provided [[Utilities][tools]] for easily building new augmentations and integrating them into the Augraphy workflow.
