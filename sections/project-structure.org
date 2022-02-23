@@ -93,3 +93,17 @@ Applies random pencil scribbles to image.
 Emulates the imperfections in scanning solid colors due to subtle lighting differences.
 
 ** Utilities
+*** ComposePipelines
+Provides a means of composing two pipelines into one.
+*** FigshareDownloader
+Provides functions to query and download files from Figshare, a popular online repository of research data.
+*** Foreign
+Provides a means of wrapping augmentations from other projects, like Albumentations and imgaug.
+*** Function
+Wraps an arbitrary function or a list of arbitrary functions into an augmentation.
+*** ImageOverlay
+Places a foreground image on the document, at a specified location or randomly.
+*** NoiseGenerator
+Useful for generating noise masks to place on other images.
+*** OverlayBuilder
+Creates an image mask containing other images, like hole punches or binder clips, to be overlaid on a document.
