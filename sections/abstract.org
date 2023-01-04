@@ -1,2 +1,0 @@
-* Abstract
-We introduce a document image augmentation library focused on producing realistic noise and defects in images of documents. Augraphy enables practitioners to rapidly develop datasets for use in document analysis -- optical character recognition, style transfer, denoising, and more. Results obtained with datasets produced using the library are discussed, with particular focus given to the Shabby Pages corpus.
