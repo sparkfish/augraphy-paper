@@ -7,8 +7,8 @@
 }
 \usepackage{listings}
 \usepackage{courier}
-%\renewcommand\UrlFont{\color{blue}\rmfamily}
-\renewcommand{\floatpagefraction}{.8}%
+\renewcommand{\floatpagefraction}{.8}
+%
 \begin{document}
 
 \title{Augraphy: An Augmentation Pipeline API for Modern Document Images}
@@ -26,13 +26,11 @@ Left Associates LLC (\email{research@left.associates})}
 \maketitle
 
 \begin{abstract}
-We introduce Augraphy, a library for constructing feature augmentation pipelines for building modern document image datasets suitable for machine learning tasks. A discussion of prior art in the synthetic document image distortion space precedes description of the motivation for and structure of Augraphy. The library is used to produce a derivative of the NoisyOffice dataset, with which a simple convolutional neural network is trained and evaluated; the results of this experiment are discussed, followed by a look forward to further anticipated work.
+We introduce Augraphy, a library for constructing feature augmentation pipelines for building modern document image datasets suitable for machine learning tasks. A discussion of prior art in the synthetic document image distortion space precedes description of the motivation for and structure of Augraphy. The library is used to quickly produce a derivative of the NoisyOffice dataset, on which a simple convolutional neural network is trained, which on some metrics outperforms the same network trained on the NoisyOffice set; the results of this experiment are discussed, followed by a look forward to further anticipated work.
 \end{abstract}
 
 \section{Introduction and Motivation}
-Augraphy was created as a way to generate features that mimic those of real-world dirty documents, enabling users to produce datasets useful for training denoisers, layout classifiers, optical character recognizers, shadow and watermark removers, binarizers, deblurrers, defaders, layout classifiers, document image segmenters, and many other model types.\\
-
-Training supervised learning models requires labeled datasets, which contain pairs of training data objects and associated labels, or ground-truths. However, collecting or otherwise determining a set of labels for training data is quite challenging.  In the case of text documents, most real-world dirty documents /can't/ come with clean ground-truths.\\
+Augraphy was created as a way to generate features that mimic those of real-world dirty documents, enabling users to produce datasets useful for training denoisers, layout classifiers, optical character recognizers, shadow and watermark removers, binarizers, deblurrers, defaders, layout classifiers, document image segmenters, and many other model types. Training supervised learning models requires labeled datasets, which contain pairs of training data objects and associated labels, or ground-truths. However, collecting or otherwise determining a set of labels for training data is quite challenging.  In the case of text documents, most real-world dirty documents /can't/ come with clean ground-truths.\\
 
 Most often, source documents are too old, and often were created before the advent of digital storage media. Some documents are one-offs, produced ad-hoc in the typewriter era, but many more still were printed directly from the text editor used to write them, with no copy saved even after it became possible to do so. Document analysis and understanding tasks require these clean images for analysis. For these reasons, it's much easier to take clean documents and add distorting features to them with a tool like Augraphy than to start with the warped images and find or create ground-truths.
 
@@ -176,37 +174,31 @@ Despite recent techniques [Training Vision Transformers with Only 2040 Images, V
 
 The NoisyOffice data provided by Kaggle contains 144 ground truth images, 144 training images, and 72 validation images. For the Augraphy model, we produced a dataset 10x larger, by duplicating each of the ground truth images, then running 10 Augraphy pipelines against each copy. Doing this was trivial; Augraphy's value lies in its ease of use in producing large training sets.\\
 
-The NoisyOffice dataset contains folded sheets, wrinkled sheets, coffee stains, and footprint noise. The features given by the wrinkle and fold distortions can be mimicked with some Gaussian noise applied at various points along a line, and the features created by the stains and footprints can be mimicked with dark regions and thin lines. With Augraphy, we expected that we could use the BadPhotoCopy augmentation and the strikethrough behavior from the Markup augmentation to add these features to the ground-truth data, so we executed the following pipeline:
+The NoisyOffice dataset contains folded sheets, wrinkled sheets, coffee stains, and footprint noise. The features given by the wrinkle and fold distortions can be mimicked by overlaying the foreground text on wrinkled and folded paper textures, as the NoisyOffice team did, and the features created by the stains and footprints can be mimicked by introducing dark regions and thin lines. With Augraphy, we expected that we could use the BadPhotoCopy augmentation to produce the dark regions and a combination of the strikethrough behavior from the Markup augmentation and the smooth curve shading behavior of the PencilScribbles augmentation to add the last feature to the ground-truth data. The PaperFactory augmentation makes the paper texture overlay trivial and repeatable. In the end, we executed the following pipeline:
 
 \begin{lstlisting}
 ink_phase = []
-paper_phase = []
-post_phase = [BadPhotoCopy(), Markup()]
+paper_phase = [PaperFactory(p=0.5)]
+post_phase = [
+  BadPhotoCopy(p=0.5),
+  PencilScribbles(p=0.5),
+  Markup(markup_color=(0,0,0), p=0.5)
+]
 
 AugraphyPipeline(ink_phase, paper_phase, post_phase)
 \end{lstlisting}
+
+In each of the augmentations created above, the probability of applying to the image passing through the pipeline was set to 50\%, and the strikethrough behavior (the default) for the Markup augmentation was set to strike out words with only black lines.\\
+
+The PaperFactory augmentation reads and randomly crops image textures from a local directory; to this we added two \footnote{\url{https://p2.piqsels.com/preview/642/889/110/paper-crease-creased-texture.jpg
+}}, \footnote{\url{https://blog.miklavcic.si/wp-content/uploads/2011/11/white_paper_1.png}} public domain images of wrinkled paper found on Bing.
+
 \subsection{Training Regime}
 We fit the model architecture described in the previous section to both the NoisyOffice corpus and a derivative work generated with Augraphy applied to the NoisyOffice ground truth images.\\
 
 Training proceeded for 600 epochs or until the model began to overfit, with an overfit patience of 30 epochs. The NoisyOffice model finished training after 416 epochs, while the Augraphy model trained for the full 600 epochs.\\
 
 Both models were trained with mean squared error as the loss function, using the Adam optimizer, and evaluated with the mean average error metric.
-
-\begin{table}
-\centering
-\caption{Model training statistics}\label{tab1}
-\begin{tabular}{|@{\hspace{2em}}l@{\qquad}|@{\hspace{2em}}l@{\qquad}|@{\hspace{2em}}l@{\qquad}|}
-\hline
-Model & NoisyOffice & Augraphy\\
-\hline
-Average Loss & 0.0010 & 0.0014\\
-Mean Average Error & 0.0150 & 0.0142\\
-Validation Loss & 7.4609e-04 & 8.9985e-04\\
-Validation Mean Average Error & 0.0122 & 0.0112\\
-Training Time & 190ms/step & 218ms/step\\
-\hline
-\end{tabular}
-\end{table}
 
 \subsection{Results}
 Sample predictions from each model on the validation task are presented in Figure 1. As expected, the NoisyOffice model performs admirably, but does struggle to fully remove the coffee stain feature, leaving some residue. The Augraphy model clearly outperforms the NoisyOffice model at stain removal, but does not generalize well to the folding and wrinkling noise; this was expected, since the Augraphy training data did not include fold or wrinkle features. Further, the Augraphy model overcompensates for the \texttt{BadPhotoCopy} behavior on text, by increasing the line thickness in the predicted text, resulting in a bold font.\\
@@ -223,38 +215,37 @@ To compare the models' performance on the validation task, we considered the fol
 \item Peak signal-to-noise ratio (PSNR)
 \end{enumerate}
 
-The models predicted cleaned versions of the validation images (\ref{fig4}), which were then compared to the groundtruth versions according to each metric. The average over all such results was taken and is displayed in Table 2.
-
+Over the last 5 epochs of training, the performance of the models on average loss, average mean-average-error (MAE), average validation loss, and average validation MAE were recorded. The models predicted cleaned versions of the validation images (Figure 4), which were then compared to the groundtruth versions according to each metric. The average over all such results obtained during validation was taken. These metrics are displayed in Table 1.
 
 \begin{table}
 \centering
-\caption{Model performance on NoisyOffice validation task}\label{tab1}
+\caption{Model training statistics and performance on NoisyOffice validation task}\label{tab1}
 \begin{tabular}{|@{\hspace{2em}}l@{\qquad}|@{\hspace{2em}}l@{\qquad}|@{\hspace{2em}}l@{\qquad}|}
 \hline
-Model &  Metric & Average value\\
+Metric & NoisyOffice & Augraphy\\
 \hline
-NoisyOffice & PSNR & 63.09152246942623\\
-Augraphy & PSNR & 63.11842705899114\\
-NoisyOffice & SSIM & 0.8726093605602885\\
-Augraphy & SSIM & 0.8633782608031118\\
-NoisyOffice & RMSE & 0.1878745854176291\\
-Augraphy & RMSE & 0.1866188481559681\\
+PSNR & 63.09152246942623 & 63.3491691640664\\
+SSIM & 0.8726093605602885 & 0.8662918306486613\\
+RMSE & 0.1878745854176291 & 0.18310202817380003\\
+Test Loss & 0.0011 & 0.0012\\
+Test MAE & 0.0150 & 0.0129\\
+Validation Loss & 7.5551e-04 & 8.22202e-04\\
+Validation MAE & 0.01236 & 0.01076\\
+Training Time & 190ms/step & 218ms/step\\
 \hline
 \end{tabular}
 \end{table}
 
-Despite the models having been trained to minimize the mean squared error, they performed quite well on the RMSE, SSIM, and PSNR tasks. RMSE is a general indicator of the model's denoising efficacy, while PSNR specifically looks at distributed noise features like Gaussian noise; structural-similarity is less useful in this case because we weren't concerned with superresolution or other tasks, but we include it as a baseline for future work.\\
+The Augraphy model outperforms the PSNR score of the NoisyOffice model on the validation task by half a percent, and has a lower mean average error both in test and validation during training, but underperforms by 0.8\% on structural similarity and 2.5\% on RMSE in validation, with a higher average test and validation loss. These numbers are consistent with the visual prediction results displayed in Figure 1: the Augraphy model predicts fewer pixels in the text (RMSE lower by 2.5\%), but removes more noise and with a higher degree of fidelity than the NoisyOffice model (PSNR higher by 0.2576466946). The training metrics collected indicate that the Augraphy model has lower variance so is more precise than the NoisyOffice model, but exhibits higher loss and thus less accuracy in its predictions.
 
 \section{Future Work}
 This section describes new directions for research and development.
 
-\subsection{Tuning Augraphy}
-The Augraphy pipeline used to generate training data for the Augraphy model was extremely naive, and only contained two augmentations; no attempt was made to adjust the default settings, demonstrating Augraphy's high degree of both utility and ease-of-use. Much of the data used in training contained an excessive amount of added noise, making the image unreadable to the human eye, and too noisy to recover text features from. Producing the most accurate model with Augraphy requires careful fine-tuning of the augmentation input parameters.
+\subsection{Tuning the Pipeline}
+The pipeline used to generate training data for the Augraphy model was extremely naive, and only contained four augmentations, most with default parameters, demonstrating Augraphy's high degree of both utility and ease-of-use. However, much of the data used in training contained an excessive amount of added noise, making the image unreadable to the human eye, and too noisy to recover text features from. Producing the most accurate model with Augraphy requires careful fine-tuning of the augmentation input parameters to generate training images closer to the validation set.
 
 \subsection{Additional Techniques}
-For brevity of both page length and time, this article only includes experimental results for one type of model. We plan to evaluate denoisers built with other architectures, particularly transformers, diffusion models, generative adversarial networks, and ensembles of these. During the validation task, the naive Augraphy model adequately removed the page fold and wrinkle noise, but considerably degraded the foreground text. By comparison, the NoisyOffice model left more of the text untouched, but allowed more of the stain features to remain. The Augraphy model's performance suggests that better results may be achieved by a sequential model built from an Augraphy-trained denoiser followed by an inpainting model.\\
-
-Human toil is needed to assemble initial datasets. To alleviate this, we are developing another library for generating document images purely synthetically, and intend to release a library for that soon.
+For brevity, this article only includes experimental results for one type of model. We plan to evaluate denoisers built with other architectures, particularly transformers, diffusion and generative adversarial networks, and ensembles of these. During the validation task, the naive Augraphy model correctly removed the page fold and wrinkle noise, but visually degraded regions of the foreground text. By comparison, the NoisyOffice model left more of the text intact, but permitted more of the stain features to remain in the output. Better results may be achieved by a sequential model built from an Augraphy-trained denoiser followed by an inpainting model to repair the text.\\
 
 \subsection{An Augraphy Dataset}
 Privacy and security concerns typically preclude the assembly of large sets of modern document images: most documents are not intended for general viewing. The authors have searched frequently, for over a year, and have been unable to find decently-sized (>10 images) sets of modern document images, besides the NoisyOffice set. We intend to release an Augraphy-generated dataset in the coming months.
@@ -310,6 +301,7 @@ We presented Augraphy, an augmentation framework for generating realistic datase
 {Alexander Buslaev, Vladimir I. Iglovikov, Eugene Khvedchenya, Alex Parinov, Mikhail Druzhinin, and Alexandr A. Kalinin. Albumentations: Fast and flexible image augmentations. Information, 11(2), 2020.}
 
 \bibitem{ref_imgaug}
-{Alexander B. Jung, Kentaro Wada, Jon Crall, Satoshi Tanaka, Jake Graving, Christoph Reinders, Sarthak Yadav, Joy Banerjee, Gabor Vecsei, Adam Kraft, Zheng Rui, Jirka Borovec, Christian Vallentin, Semen Zhydenko, Kilian Pfeiffer, Ben Cook, Ismael Fernandez, Francois-Michel De Rainville, Chi-Hung Weng, Abner Ayala-Acevedo, Raphael Meudec, Matias Laporte, et al. imgaug. https://github.com/aleju/imgaug, 2020. Online; accessed 01-Feb-2020.}
+  {Alexander B. Jung, Kentaro Wada, Jon Crall, Satoshi Tanaka, Jake Graving, Christoph Reinders, Sarthak Yadav, Joy Banerjee, Gabor Vecsei, Adam Kraft, Zheng Rui, Jirka Borovec, Christian Vallentin, Semen Zhydenko, Kilian Pfeiffer, Ben Cook, Ismael Fernandez, Francois-Michel De Rainville, Chi-Hung Weng, Abner Ayala-Acevedo, Raphael Meudec, Matias Laporte, et al. imgaug. https://github.com/aleju/imgaug, 2020. Online; accessed 01-Feb-2020.}
 \end{thebibliography}
 \end{document}
+
