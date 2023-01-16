@@ -46,9 +46,36 @@ This paper discusses the Augraphy tool, and shows how it can be used both as a d
 \end{abstract}
 
 \section{Introduction and Motivation}
-Augraphy was created as a way to generate features that mimic those of real-world dirty documents, enabling users to produce datasets useful for training denoisers, layout classifiers, optical character recognizers, shadow and watermark removers, binarizers, deblurrers, defaders, layout classifiers, document image segmenters, and many other model types. Training supervised learning models requires labeled datasets, which contain pairs of training data objects and associated labels, or ground-truths. However, collecting or otherwise determining a set of labels for training data is quite challenging.  In the case of text documents, most real-world dirty documents /can't/ come with clean ground-truths.\\
+%Augraphy was created as a way to generate features that mimic those of real-world dirty documents, enabling users to produce datasets useful for training denoisers, layout classifiers, optical character recognizers, shadow and watermark removers, binarizers, deblurrers, defaders, layout classifiers, document image segmenters, and many other model types. Training supervised learning models requires labeled datasets, which contain pairs of training data objects and associated labels, or ground-truths. However, collecting or otherwise determining a set of labels for training data is quite challenging.  In the case of text documents, most real-world dirty documents /can't/ come with clean ground-truths.\\
+%
+%Most often, source documents are too old, and often were created before the advent of digital storage media. Some documents are one-offs, produced ad-hoc in the typewriter era, but many more still were printed directly from the text editor used to write them, with no copy saved even after it became possible to do so. Document analysis and understanding tasks require these clean images for analysis. For these reasons, it's much easier to take clean documents and add distorting features to them with a tool like Augraphy than to start with the warped images and find or create ground-truths.
 
-Most often, source documents are too old, and often were created before the advent of digital storage media. Some documents are one-offs, produced ad-hoc in the typewriter era, but many more still were printed directly from the text editor used to write them, with no copy saved even after it became possible to do so. Document analysis and understanding tasks require these clean images for analysis. For these reasons, it's much easier to take clean documents and add distorting features to them with a tool like Augraphy than to start with the warped images and find or create ground-truths.
+The modern world provides a plethora of tasks that require the need for automated and intelligent solutions for handling unstructured data.
+Often, this data is in the form of documents, and these documents may appear noisy, especially if they have been captured from the physical world via printing, scanning, or photocopying processes.
+Such real-world phenomena may introduce many types of distortions: for instance, folds, wrinkles, or tears in a page can cause color changes and shadows in a scanned document image; low or high printer ink settings may cause some regions of a document to be lighter or darker; and human annotations like highlighting or pencil marks can add noise to the page.
+
+Many tasks involving machine learning are impacted by document noise.
+High-level tasks like document classification and information extraction must often be able to perform on noisily scanned document images.
+For instance, the RVL-CDIP document classification corpus \cite{harley2015icdar-rvlcdip} consists of scanned document images, many of which have substantial amounts of scanner-induced noise, as does the FUNSD form understanding benchmark \cite{jaume2019-funsd}.
+Other intermediate-level tasks like optical character recognition (OCR) and page layout analysis may perform optimally if noise in a document image is minimized \cite{character-recognition-systems,ogorman-document-image-analysis,Rotman2022-hh}.
+Further, the lower-level task of document de-noising tackles the document noise problem more directly by attempting to remove noise from a document image \cite{ref_noisyoffice,blind-denoising-iccv-2021,kulkarni-2020,patch-based-document-denoising,Mustafa_2018-wan}.
+Such tasks benefit from copious amounts of training data, and one way of generating large amounts of training data with noise-like artefacts is to use data augmentation.
+
+\begin{figure} % temp placeholder for figure... this figure should be compelling and help the reader understand what Augraphy is about
+\centering
+\fbox{
+    \begin{minipage}{2in}
+        \hfill\vspace{1in}
+    \end{minipage}
+    }
+\caption{Placeholder for compelling figure to help the reader understand what Augraphy is about.}   
+\end{figure}
+
+For this reason we introduce \emph{Augraphy}, an open-source Python-based data augmentation library for generating versions of document images that contain realistic noise artefacts commonly introduced via scanning, photocopying, and other office room procedures.
+\emph{Augraphy} differs from most image data augmentation tools by specifically targeting the types of alterations and degradations seen in document images.
+\emph{Augraphy} offers \numAugraphyAugmentations~ individual augmentation methods out-of-the-box across three ``phases" of augmentations, and these individual phase augmentations can be composed together along with a where different paper backgrounds can be added to the augmented image.
+The resulting document images are realistic, noisy versions of clean documents, as evidenced in Figure~X and in Figure~Y.
+This paper provides an overview of the \emph{Augraphy} library, and demonstrates how it can be used both as a training data augmentation tool and as an effective means for producing data for robustness testing.
 
 \begin{table}[]
     \centering
