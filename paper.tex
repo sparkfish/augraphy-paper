@@ -26,7 +26,10 @@ Left Associates LLC (\email{research@left.associates})}
 \maketitle
 
 \begin{abstract}
-We introduce Augraphy, a library for constructing feature augmentation pipelines for building modern document image datasets suitable for machine learning tasks. A discussion of prior art in the synthetic document image distortion space precedes description of the motivation for and structure of Augraphy. The library is used to quickly produce a derivative of the NoisyOffice dataset, on which a simple convolutional neural network is trained, which on some metrics outperforms the same network trained on the NoisyOffice set; the results of this experiment are discussed, followed by a look forward to further anticipated work.
+%We introduce Augraphy, a library for constructing feature augmentation pipelines for building modern document image datasets suitable for machine learning tasks. A discussion of prior art in the synthetic document image distortion space precedes description of the motivation for and structure of Augraphy. The library is used to quickly produce a derivative of the NoisyOffice dataset, on which a simple convolutional neural network is trained, which on some metrics outperforms the same network trained on the NoisyOffice set; the results of this experiment are discussed, followed by a look forward to further anticipated work.
+This paper introduces Augraphy, a Python library for constructing data augmentation pipelines for producing common perturbations seen in real-world document image datasets.
+Augraphy stands apart from other data augmentation tools by providing many different augmentation strategies to produce augmented versions of clean document images that appear as if they have been distorted from standard office operations, such as printing, scanning, and faxing through old or dirty machines, degradation of ink over time, and handwritten markings.
+This paper discusses the Augraphy tool, and shows how it can be used both as a data augmentation tool for (1) producing diverse training data for tasks such as document de-noising, and (2) generating challenging test data for evaluating model robustness on document image modeling tasks.
 \end{abstract}
 
 \section{Introduction and Motivation}
