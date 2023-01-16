@@ -7,7 +7,18 @@
 }
 \usepackage{listings}
 \usepackage{courier}
+\usepackage{booktabs}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{amssymb}
+\usepackage{pifont}
 \renewcommand{\floatpagefraction}{.8}
+
+% check mark and x for table
+\newcommand{\cmark}{{\color{ForestGreen}\ding{51}}}%
+\newcommand{\xmark}{{\color{Maroon}\ding{55}}}%
+
+\newcommand{\numAugraphyAugmentations}{\emph{n}}
+
 %
 \begin{document}
 
@@ -36,34 +47,80 @@ Augraphy was created as a way to generate features that mimic those of real-worl
 
 Most often, source documents are too old, and often were created before the advent of digital storage media. Some documents are one-offs, produced ad-hoc in the typewriter era, but many more still were printed directly from the text editor used to write them, with no copy saved even after it became possible to do so. Document analysis and understanding tasks require these clean images for analysis. For these reasons, it's much easier to take clean documents and add distorting features to them with a tool like Augraphy than to start with the warped images and find or create ground-truths.
 
-\section{NoisyOffice}
-Many document-focused datasets exist, but most are designed for tasks like layout detection \cite{ref_RDCL2019}, content extraction \cite{ref_tobacco800}, or handwriting recognition \cite{ref_icdar}. the only publically-available dataset we could find that was exclusively focused on digitally-generated modern documents was NoisyOffice \cite{ref_NoisyOffice}.\\
+\begin{table}[]
+    \centering
+    \caption{Comparison of various image-based data augmentation libraries.}
+    \scalebox{0.9}{
+    \begin{tabular}{lccccc}
+    \toprule
+        \textbf{Library} & \textbf{Num.} & \textbf{Document-} & \textbf{Pipeline-} & & \\
+        \textbf{Name} & \textbf{Augmentations} & \textbf{Centric} & \textbf{Based} & \textbf{Python} & \textbf{License}  \\
+    \midrule
+        \emph{Augmentor} \cite{augmentor} & & \xmark &  & \cmark & MIT \\ 
+        \emph{Albumentations} \cite{ref_albumentations} &  & \xmark & \cmark & \cmark & MIT \\
+        \emph{imgaug} \cite{ref_imgaug} & & \xmark & \cmark & \cmark & MIT \\
+        \emph{Augly} \cite{Papakipos2022-gq-augly} & & \xmark & & \cmark & MIT \\
+        \emph{Pytorch} \cite{pytorch} & & \xmark & \cmark & \cmark & BSD-style \\
+        \emph{DocCreator} \cite{ref_DocCreator} & & \cmark & \xmark & \xmark & LGPL-3.0 \\
+        \emph{Augraphy} (ours) & \numAugraphyAugmentations & \cmark & \cmark & \cmark & MIT\\
+    \bottomrule
+    \end{tabular}}
+    \label{tab:augmentation-library-comparison}
+\end{table}
 
-This database \cite{ref_NoisyOfficeDatabase}, hosted on the UCI Machine Learning Repository \cite{ref_UCIMLR}, was created for training image processing filters, including denoisers and superresolution models. NoisyOffice includes three types of image:
+\section{Related Work}
 
-\begin{enumerate}
-\item ground truth images, created by printing some text and re-digitizing the physical document with a digital scanner,
-\item synthetic noisy images, created by digitally fusing the text foreground with a background image of a coffee-stained or boot-printed page, using technique 1 above, and
-\item real noisy images, created by physically stepping with boots onto physical documents, adding real coffee stains, and so on.
-\end{enumerate}
+%This section discusses prior work related to document data augmentation, robustness testing, and document de-noising.
+This section discusses prior work related to data augmentation and robustness testing, especially as it relates to document understanding and processing tasks.
 
-Assembling the NoisyOffice database was a great service to the document analysis community, but for our purposes, the set is too limited:
+\subsection{Data Augmentation}
+A wide variety of data augmentation tools and pipelines exist for machine learning tasks ranging from natural language processing (e.g., \cite{feng-etal-2021-survey,fadaee-etal-2017-data,wei-zou-2019-eda}), audio and speech processing (e.g., \cite{ko15_interspeech,audiogmenter,audio-framework}), and computer vision and image processing.
+In the image realm of image processing and computer vision, data augmentation tools and pipelines include \emph{Augly} \cite{Papakipos2022-gq-augly}, \emph{Augmentor} \cite{augmentor}, \emph{Albumentations} \cite{ref_albumentations}, \emph{DocCreator} \cite{ref_DocCreator}, Pytorch \cite{pytorch}, and \emph{imgaug} \cite{ref_imgaug}.
+Augmentation strategies from these image-centric libraries are typically general purpose, and include image transformations like rotations, warps, and color modifications.
+Table~\ref{tab:augmentation-library-comparison} compares \emph{Augraphy} with other image-based data augmentation libraries and tools.
+As can be seen, these other data augmentation libraries do not specifically provide support for imitating the corruptions commonly seen in document analysis corpora.
 
-\begin{itemize}
-\item it contains only 3 font sizes (footnote, normal, large), 3 font types (typewriter, sans-serif, Roman), italicized and nonitalicized text, and 4 types of noise (folds, wrinkles, coffee stains, and footprints), for a total of 72 unique images.
-\item the text is all English-language
-\item the corpus has already been converted to grayscale, removing any choice about which desaturation algorithm to use
-\item the image sizes provided are quite small (540x420), though double resolution images are also provided for use in training superresolution models.
-\end{itemize}
+A notable exception to this is the \emph{DocCreator} image synthesizing tool \cite{ref_DocCreator}, which is targeted towards creating synthetic images that mimic common corruptions seen in document collections.
+\emph{DocCreator} differs from \emph{Augraphy} in several ways, however.
+The first difference is that \emph{DocCreator}'s augmentations are meant to imitate those seen in historical (e.g., ancient or medieval) documents, while \emph{Augraphy} is meant to replicate noise caused by noisy office room procedures.
+\emph{DocCreator} is also written in the C++ programming language and is a monolithic what-you-see-is-what-you-get (WYSIWYG) tool, and does not have a scripting or API interface to enable use in a broader machine learning pipeline.
+\emph{Augraphy}, in contrast, is written in Python and can be easily integrated into machine learning model development and evaluation pipelines, and can easily be used alongside other Python packages.
 
-Rather than providing a direct answer to these, Augraphy does not generate the initial document image input to a pipeline, instead taking the approach of providing the tools for building a suitable dataset for any document image analysis task while relying on users to supply the ground truth images.
+\subsection{Robustness Testing}
 
-\section{DocCreator}
-In our investigations, the NoisyOffice database was the only preexisting dataset of images of modern documents with realistic distortions we could find; the situation is no better for document-specific feature augmentation tools, with only DocCreator \cite{ref_DocCreator} seeming to occupy that niche.\\
+The introduction of noise-like corruptions and other modifications to image data can be used as a way of estimating and evaluating model robustness.
+Prior work in this space includes the use of image blurring, contrast and brightness changes, color alterations, partial occlusions, geometric transformations, pixel-level noise (e.g., salt-and-pepper noise, impulse noise, etc.), and compression artefacts (e.g., JPEG) to evaluate image classification and object detection models (e.g., \cite{image-quality-impact,imagenet-c,pathology-recommendations,Hosseini2017-kn-google-api,face-recognition-impact,pathology-schomig,Vasiljevic2016-al-bluring-impact}).
+More specific to the document understanding field, recent prior work has used basic noise-like corruptions to evaluate the robustness of document classifiers trained on RVL-CDIP \cite{saifullah-2022}.
+Our paper also uses robustness testing as a way to showcase the effectiveness of \emph{Augraphy}, but rather than general image modifications like those described above, we use document-centric modifications.
 
-DocCreator contains character-set-level distortions, a mechanism for overlaying characters onto an arbitrary paper texture akin to merge technique \#1, and also includes an experimental tool for fusing the document image onto one of several 3D meshes to simulate physical alterations to the document like a crumpled and smoothed page.\\
-
-While an interesting piece of software in its own right, DocCreator is geared towards historical documents like ancient manuscripts and scrolls, and so is unfortunately poorly-suited to generating realistic images of \textit{modern} documents. Worse, the software is a monolithic what-you-see-is-what-you-get editor, with all internals written in \texttt{C++}, making it unsuitable for use either in a semi-automated data augmentation pipeline or by the majority of researchers and industry practitioners who are much more familiar with Python-based tools and expect language-level integration.
+%\section{NoisyOffice}
+%Many document-focused datasets exist, but most are designed for tasks like layout detection \cite{ref_RDCL2019}, content extraction \cite{ref_tobacco800}, or handwriting recognition \cite{ref_icdar}. the only publically-available dataset we could find that was exclusively focused on digitally-generated modern documents was NoisyOffice \cite{ref_NoisyOffice}.\\
+%
+%This database \cite{ref_NoisyOfficeDatabase}, hosted on the UCI Machine Learning Repository \cite{ref_UCIMLR}, was created for training image processing filters, including denoisers and superresolution models. NoisyOffice includes three types of image:
+%
+%\begin{enumerate}
+%\item ground truth images, created by printing some text and re-digitizing the physical document with a digital scanner,
+%\item synthetic noisy images, created by digitally fusing the text foreground with a background image of a coffee-stained or boot-printed page, using technique 1 above, and
+%\item real noisy images, created by physically stepping with boots onto physical documents, adding real coffee stains, and so on.
+%\end{enumerate}
+%
+%Assembling the NoisyOffice database was a great service to the document analysis community, but for our purposes, the set is too limited:
+%
+%\begin{itemize}
+%\item it contains only 3 font sizes (footnote, normal, large), 3 font types (typewriter, sans-serif, Roman), italicized and nonitalicized text, and 4 types of noise (folds, wrinkles, coffee stains, and footprints), for a total of 72 unique images.
+%\item the text is all English-language
+%\item the corpus has already been converted to grayscale, removing any choice about which desaturation algorithm to use
+%\item the image sizes provided are quite small (540x420), though double resolution images are also provided for use in training superresolution models.
+%\end{itemize}
+%
+%Rather than providing a direct answer to these, Augraphy does not generate the initial document image input to a pipeline, instead taking the approach of providing the tools for building a suitable dataset for any document image analysis task while relying on users to supply the ground truth images.
+%
+%\section{DocCreator}
+%In our investigations, the NoisyOffice database was the only preexisting dataset of images of modern documents with realistic distortions we could find; the situation is no better for document-specific feature augmentation tools, with only DocCreator \cite{ref_DocCreator} seeming to occupy that niche.\\
+%
+%DocCreator contains character-set-level distortions, a mechanism for overlaying characters onto an arbitrary paper texture akin to merge technique \#1, and also includes an experimental tool for fusing the document image onto one of several 3D meshes to simulate physical alterations to the document like a crumpled and smoothed page.\\
+%
+%While an interesting piece of software in its own right, DocCreator is geared towards historical documents like ancient manuscripts and scrolls, and so is unfortunately poorly-suited to generating realistic images of \textit{modern} documents. Worse, the software is a monolithic what-you-see-is-what-you-get editor, with all internals written in \texttt{C++}, making it unsuitable for use either in a semi-automated data augmentation pipeline or by the majority of researchers and industry practitioners who are much more familiar with Python-based tools and expect language-level integration.
 
 \section{Document Distortion, Theory \& Technique}
 Many approaches exist for adding features to an image, and many types of feature can be generated. The most common types of features added are Gaussian noise, blurring, geometric transformations like scaling, rotating, translating, and cropping, downsampling, font weighting, and so on.\\
