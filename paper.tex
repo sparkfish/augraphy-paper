@@ -88,20 +88,27 @@ Other intermediate-level tasks like optical character recognition (OCR) and page
 Further, the lower-level task of document de-noising tackles the document noise problem more directly by attempting to remove noise from a document image \cite{ref_noisyoffice,blind-denoising-iccv-2021,kulkarni-2020,patch-based-document-denoising,Mustafa_2018-wan}.
 Such tasks benefit from copious amounts of training data, and one way of generating large amounts of training data with noise-like artefacts is to use data augmentation.
 
-\begin{figure} % temp placeholder for figure... this figure should be compelling and help the reader understand what Augraphy is about
-\centering
-\fbox{
-    \begin{minipage}{2in}
-        \hfill\vspace{1in}
-    \end{minipage}
-    }
-\caption{Placeholder for compelling figure to help the reader understand what Augraphy is about.}   
+%\begin{figure} % temp placeholder for figure... this figure should be compelling and help the reader understand what Augraphy is about
+%\centering
+%\fbox{
+%    \begin{minipage}{2in}
+%        \hfill\vspace{1in}
+%    \end{minipage}
+%    }
+%\caption{Placeholder for compelling figure to help the reader understand what Augraphy is about.}   
+%\end{figure}
+
+\begin{figure}
+    \centering\scalebox{0.475}{
+    \includegraphics{figures/archetype-memo.pdf}}
+    \caption{\emph{Augraphy} can be used to introduce noisy perturbations to document images like the noise seen in (a), which is a real-life sample from  RVL-CDIP. We re-created a clean version of (a) in (b). We then create a noisy version of (b) by applying several augmentations to it to produce (c).}
+    \label{fig:intro}
 \end{figure}
 
 For this reason we introduce \emph{Augraphy}, an open-source Python-based data augmentation library for generating versions of document images that contain realistic noise artefacts commonly introduced via scanning, photocopying, and other office room procedures.
 \emph{Augraphy} differs from most image data augmentation tools by specifically targeting the types of alterations and degradations seen in document images.
-\emph{Augraphy} offers \numAugraphyAugmentations~ individual augmentation methods out-of-the-box across three ``phases" of augmentations, and these individual phase augmentations can be composed together along with a where different paper backgrounds can be added to the augmented image.
-The resulting document images are realistic, noisy versions of clean documents, as evidenced in Figure~X and in Figure~Y.
+\emph{Augraphy} offers \numAugraphyAugmentations ~individual augmentation methods out-of-the-box across three ``phases" of augmentations, and these individual phase augmentations can be composed together along with a where different paper backgrounds can be added to the augmented image.
+The resulting document images are realistic, noisy versions of clean documents, as evidenced in Figure~\ref{fig:intro}, where we apply several \emph{Augraphy} augmentations to a clean document image in order to mimic the types of noise seen in a real-world noisy document image from RVL-CDIP.
 This paper provides an overview of the \emph{Augraphy} library, and demonstrates how it can be used both as a training data augmentation tool and as an effective means for producing data for robustness testing.
 
 \begin{table}[]
