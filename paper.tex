@@ -253,14 +253,14 @@ Figure~\ref{fig:pipeline} shows the individual phases of an example pipeline com
 \begin{figure}
 \centering
 \scalebox{0.33}{
-\includegraphics[]{pipeline.png}}
+\includegraphics[]{figures/pipeline.png}}
 \caption{Visualization of an Augraphy pipeline, showing the composition of several image augmentations together with a specific paper background} \label{fig:pipeline}
 \end{figure}
 
 \subsection{Augraphy Augmentations}
 
 Augraphy provides \numAugraphyAugmentations ~out-of-the-box augmentations.
-These augmentations are listed in Table~\ref{tab:augmentations}.
+These augmentations are listed in Table~\ref{tab:augmentations}, and examples are shown in Figure~\ref{fig:augraphy-examples-github}.
 As mentioned before, Ink Phase augmentations include those that imitate noisy processes that occur in a document's life cycle when ink is printed on paper.
 These augmentations include \texttt{BleedThrough}, which imitates what happens when ink bleeds through from the opposite side of the page.
 Another, \texttt{LowInkLines}, produces a streaking behavior common to printers running out of ink.
@@ -396,14 +396,21 @@ Interoperability and flexibility are core requirements of any data augmentation 
 
 %Figures 2 and 3 contain representative images of each augmentation applied to this very document. Descriptions of and motivation for each augmentation are available on GitHub \footnote{\url{https://github.com/sparkfish/augraphy}}.
 
-\begin{figure}
-\includegraphics[width=\textwidth]{augmentations1.png}
-\caption{Examples of each augmentation.} \label{fig2}
-\end{figure}
+%\begin{figure}
+%\includegraphics[width=\textwidth]{augmentations1.png}
+%\caption{Examples of each augmentation.} \label{fig2}
+%\end{figure}
+%
+%\begin{figure}
+%\includegraphics[width=\textwidth]{augmentations2.png}
+%\caption{Examples of each augmentation.} \label{fig3}
+%\end{figure}
 
 \begin{figure}
-\includegraphics[width=\textwidth]{augmentations2.png}
-\caption{Examples of each augmentation.} \label{fig3}
+    \centering\scalebox{0.34}{
+    \includegraphics{figures/augraphy_examples_github.png}}
+    \caption{A subset of various \emph{Augraphy} augmentations on sample images.}
+    \label{fig:augraphy-examples-github}
 \end{figure}
 
 %\subsection{Utilities}\label{utilities}
@@ -480,7 +487,7 @@ The Augraphy model clearly outperforms the NoisyOffice model at stain removal, b
 Further, the Augraphy model overcompensates for the \texttt{BadPhotoCopy} behavior on text, by increasing the line thickness in the predicted text, resulting in a bold font.
 
 \begin{figure}\label{fig4}
-\includegraphics[width=\textwidth]{sidebyside.png}
+\includegraphics[width=\textwidth]{figures/sidebyside.png}
 \caption{Validation images (left), with the images predicted by the NoisyOffice (center) and Augraphy (right) models.}
 \end{figure}
 
