@@ -13,6 +13,7 @@
 \usepackage{pifont}
 \usepackage{listings}
 \usepackage{times}
+\usepackage{wrapfig}
 \renewcommand{\floatpagefraction}{.8}
 
 % Spacing around floats
@@ -518,6 +519,44 @@ Training Time & 190ms/step & 218ms/step\\
 The Augraphy model outperforms the PSNR score of the NoisyOffice model on the validation task by half a percent, and has a lower mean average error both in test and validation during training, but underperforms by 0.8\% on structural similarity and 2.5\% on RMSE in validation, with a higher average test and validation loss.
 These numbers are consistent with the visual prediction results displayed in Figure 1: the Augraphy model predicts fewer pixels in the text (RMSE lower by 2.5\%), but removes more noise and with a higher degree of fidelity than the NoisyOffice model (PSNR higher by 0.2576466946).
 The training metrics collected indicate that the Augraphy model has lower variance so is more precise than the NoisyOffice model, but exhibits higher loss and thus less accuracy in its predictions.
+
+\subsection{Face Detection Robustness Testing}
+
+In this section, we use \emph{Augraphy} to investigate the robustness of face detection models on images that have been altered by \emph{Augraphy}.
+In this way, we move beyond analyzing robustness of text-related tasks, but the images we analyze in this section can nonetheless appear in documents like newspapers, which are often scanned from the physical world by noisy scanners.
+Hence, it is important for image-focused models like image classifiers and object detection models to be robust to scanner-induced noise.
+
+\begin{wraptable}{r}{5cm}
+    \centering
+    \caption{Face detection performance.}
+    \begin{tabular}{lr}
+    \toprule
+        \textbf{Model} & \textbf{Accuracy} \\
+        \midrule
+        Azure & 57.1\%\\
+        Google & 60.1\%  \\
+        Amazon & 49.1\% \\
+        UltraFace & 4.5\%\\
+        \bottomrule
+    \end{tabular}
+    \label{tab:face-detection-results}
+\end{wraptable}
+
+We begin by sampling 75 images from the FDDB face detection benchmark \cite{fddbTech}.
+Then, we use \emph{Augraphy} to generate 10 altered versions of each image and manually remove any augmented image where the face(s) is not reasonably visible.
+We then test four face detection models on the noisy and noise-free images.
+These models are: proprietary face detection models from Google,\footnote{\url{https://cloud.google.com/vision/docs/detecting-faces}} Amazon,\footnote{\url{https://aws.amazon.com/rekognition/}} and Microsoft\footnote{\url{https://azure.microsoft.com/en-us/services/cognitive-services/face}}, and lastly the freely-available UltraFace\footnote{\url{https://github.com/onnx/models/tree/main/vision/body_analysis/ultraface}} model.
+%We then test Microsoft Azure's face detection model on the noise-free and noisy images.
+
+Table~\ref{tab:face-detection-results} shows face detection accuracy of both models on the noisy test set, and example images where no faces were detected by the Microsoft model are shown in Figure \ref{fig:face-detection-mistakes}.
+We see that all four models struggle on the \emph{Augraphy}-augmented data, with the proprietary models seeing detection performances drop to between roughly 50-60\%, and UltraFace detecting only 4.5\% of faces that it found in the noise-free data.
+
+\begin{figure}
+    \centering\scalebox{0.47}{
+    \includegraphics{figures/azure_1x3_face_errors.pdf}}
+    \caption{Example augmented images that yielded false-positive predictions with the Azure face detector.}
+    \label{fig:face-detection-mistakes}
+\end{figure}
 
 \section{Future Work}
 This section describes new directions for research and development.
