@@ -81,11 +81,7 @@ This paper discusses the Augraphy tool, and shows how it can be used both as a d
 
 \end{abstract}
 
-\section{Introduction and Motivation}
-%Augraphy was created as a way to generate features that mimic those of real-world dirty documents, enabling users to produce datasets useful for training denoisers, layout classifiers, optical character recognizers, shadow and watermark removers, binarizers, deblurrers, defaders, layout classifiers, document image segmenters, and many other model types. Training supervised learning models requires labeled datasets, which contain pairs of training data objects and associated labels, or ground-truths. However, collecting or otherwise determining a set of labels for training data is quite challenging.  In the case of text documents, most real-world dirty documents /can't/ come with clean ground-truths.\\
-%
-%Most often, source documents are too old, and often were created before the advent of digital storage media. Some documents are one-offs, produced ad-hoc in the typewriter era, but many more still were printed directly from the text editor used to write them, with no copy saved even after it became possible to do so. Document analysis and understanding tasks require these clean images for analysis. For these reasons, it's much easier to take clean documents and add distorting features to them with a tool like Augraphy than to start with the warped images and find or create ground-truths.
-
+\section{Introduction}
 The modern world provides a plethora of tasks that require the need for automated and intelligent solutions for handling unstructured data.
 Often, this data is in the form of documents, and these documents may appear noisy, especially if they have been captured from the physical world via printing, scanning, or photocopying processes.
 Such real-world phenomena may introduce many types of distortions: for instance, folds, wrinkles, or tears in a page can cause color changes and shadows in a scanned document image; low or high printer ink settings may cause some regions of a document to be lighter or darker; and human annotations like highlighting or pencil marks can add noise to the page.
@@ -141,7 +137,7 @@ This paper provides an overview of the \emph{Augraphy} library, and demonstrates
     \label{tab:augmentation-library-comparison}
 \end{table}
 
-\section{Related Work}
+\section{Related Work}\label{sec:related-work}
 
 %This section discusses prior work related to document data augmentation, robustness testing, and document de-noising.
 This section discusses prior work related to data augmentation and robustness testing, especially as it relates to document understanding and processing tasks.
@@ -166,55 +162,40 @@ Prior work in this space includes the use of image blurring, contrast and bright
 More specific to the document understanding field, recent prior work has used basic noise-like corruptions to evaluate the robustness of document classifiers trained on RVL-CDIP \cite{saifullah-2022}.
 Our paper also uses robustness testing as a way to showcase the effectiveness of \emph{Augraphy}, but rather than general image modifications like those described above, we use document-centric modifications.
 
-%\section{NoisyOffice}
-%Many document-focused datasets exist, but most are designed for tasks like layout detection \cite{ref_RDCL2019}, content extraction \cite{ref_tobacco800}, or handwriting recognition \cite{ref_icdar}. the only publically-available dataset we could find that was exclusively focused on digitally-generated modern documents was NoisyOffice \cite{ref_NoisyOffice}.\\
+%\section{Document Distortion, Theory \& Technique}
+%Many approaches exist for adding features to an image, and many types of feature can be generated. The most common types of features added are Gaussian noise, blurring, geometric transformations like scaling, rotating, translating, and cropping, downsampling, font weighting, and so on.\\
 %
-%This database \cite{ref_NoisyOfficeDatabase}, hosted on the UCI Machine Learning Repository \cite{ref_UCIMLR}, was created for training image processing filters, including denoisers and superresolution models. NoisyOffice includes three types of image:
+%These types of feature are certainly useful in general image analysis and understanding, but bear little relation to the types of features commonly found in real-world documents. A sheet of paper out in the world begins its life as wood pulp, bleached, drained, and pressed flat by a long series of rollers. These are cut to size and stacked, then bound in reams and sent out for sale and use. This is the last time the sheet is clean in its useful lifetime, and even at this point, manufacturing defects can lead to variations in the paper, even between two pages in the same ream. At the point of use, these pages are loaded into a printer where they are stamped or dusted in toner and burned with lasers or sprayed with ink. Any of these processes may alter the local texture or global topology of the sheet. The pages may receive handwritten marks at any point before or after printing, and may subsequently be folded, creased, crumpled, flattened, burned, stained, soaked, or generally be subject to any of a million other operations. Any secretary can describe hundreds of different document distortion features; any schoolteacher, thousands.\\
 %
+%Augraphy's suite of augmentations was designed to faithfully reproduce this level of complexity in the document lifecycle. Every feature just listed has either a direct implementation already within the library or on the development roadmap, with more planned.\\
+%
+%Some techniques exist for introducing these features into images of documents, including but not limited to the following:
 %\begin{enumerate}
-%\item ground truth images, created by printing some text and re-digitizing the physical document with a digital scanner,
-%\item synthetic noisy images, created by digitally fusing the text foreground with a background image of a coffee-stained or boot-printed page, using technique 1 above, and
-%\item real noisy images, created by physically stepping with boots onto physical documents, adding real coffee stains, and so on.
+%\item Text can be generated independently of the paper texture, and can be overlaid onto the "paper" by a number of blending functions, allowing a variety of paper textures to be used. The NoisyOffice team did this.
+%\item Similarly, any markup features may be generated and overlaid by the same methods.
+%\item Documents can be digitized with a commercial scanner, or converted to a continuous analog signal and back with a fax machine.
+%\item The finished document image can be used as a texture and attached to a 3D mesh, then projected back to 2 dimensions to simulate physical deformation. DocCreator has a function to do this.
 %\end{enumerate}
 %
-%Assembling the NoisyOffice database was a great service to the document analysis community, but for our purposes, the set is too limited:
-%
-%\begin{itemize}
-%\item it contains only 3 font sizes (footnote, normal, large), 3 font types (typewriter, sans-serif, Roman), italicized and nonitalicized text, and 4 types of noise (folds, wrinkles, coffee stains, and footprints), for a total of 72 unique images.
-%\item the text is all English-language
-%\item the corpus has already been converted to grayscale, removing any choice about which desaturation algorithm to use
-%\item the image sizes provided are quite small (540x420), though double resolution images are also provided for use in training superresolution models.
-%\end{itemize}
-%
-%Rather than providing a direct answer to these, Augraphy does not generate the initial document image input to a pipeline, instead taking the approach of providing the tools for building a suitable dataset for any document image analysis task while relying on users to supply the ground truth images.
-%
-%\section{DocCreator}
-%In our investigations, the NoisyOffice database was the only preexisting dataset of images of modern documents with realistic distortions we could find; the situation is no better for document-specific feature augmentation tools, with only DocCreator \cite{ref_DocCreator} seeming to occupy that niche.\\
-%
-%DocCreator contains character-set-level distortions, a mechanism for overlaying characters onto an arbitrary paper texture akin to merge technique \#1, and also includes an experimental tool for fusing the document image onto one of several 3D meshes to simulate physical alterations to the document like a crumpled and smoothed page.\\
-%
-%While an interesting piece of software in its own right, DocCreator is geared towards historical documents like ancient manuscripts and scrolls, and so is unfortunately poorly-suited to generating realistic images of \textit{modern} documents. Worse, the software is a monolithic what-you-see-is-what-you-get editor, with all internals written in \texttt{C++}, making it unsuitable for use either in a semi-automated data augmentation pipeline or by the majority of researchers and industry practitioners who are much more familiar with Python-based tools and expect language-level integration.
-
-\section{Document Distortion, Theory \& Technique}
-Many approaches exist for adding features to an image, and many types of feature can be generated. The most common types of features added are Gaussian noise, blurring, geometric transformations like scaling, rotating, translating, and cropping, downsampling, font weighting, and so on.\\
-
-These types of feature are certainly useful in general image analysis and understanding, but bear little relation to the types of features commonly found in real-world documents. A sheet of paper out in the world begins its life as wood pulp, bleached, drained, and pressed flat by a long series of rollers. These are cut to size and stacked, then bound in reams and sent out for sale and use. This is the last time the sheet is clean in its useful lifetime, and even at this point, manufacturing defects can lead to variations in the paper, even between two pages in the same ream. At the point of use, these pages are loaded into a printer where they are stamped or dusted in toner and burned with lasers or sprayed with ink. Any of these processes may alter the local texture or global topology of the sheet. The pages may receive handwritten marks at any point before or after printing, and may subsequently be folded, creased, crumpled, flattened, burned, stained, soaked, or generally be subject to any of a million other operations. Any secretary can describe hundreds of different document distortion features; any schoolteacher, thousands.\\
-
-Augraphy's suite of augmentations was designed to faithfully reproduce this level of complexity in the document lifecycle. Every feature just listed has either a direct implementation already within the library or on the development roadmap, with more planned.\\
-
-Some techniques exist for introducing these features into images of documents, including but not limited to the following:
-\begin{enumerate}
-\item Text can be generated independently of the paper texture, and can be overlaid onto the "paper" by a number of blending functions, allowing a variety of paper textures to be used. The NoisyOffice team did this.
-\item Similarly, any markup features may be generated and overlaid by the same methods.
-\item Documents can be digitized with a commercial scanner, or converted to a continuous analog signal and back with a fax machine.
-\item The finished document image can be used as a texture and attached to a 3D mesh, then projected back to 2 dimensions to simulate physical deformation. DocCreator has a function to do this.
-\end{enumerate}
-
-Augraphy already has a story for the first three, with the fourth in planning.
+%Augraphy already has a story for the first three, with the fourth in planning.
 
 \section{Augraphy}
 This section dives into detail about the \emph{Augraphy} library.
-We first provide a high-level overview of the library, then discuss the various augmentations supported out-of-the-box, and finally discuss details of the structure of the library.
+We first provide a high-level motivation for and overview of the library, then discuss the various augmentations supported out-of-the-box, and finally discuss details of the structure of the library.
+
+\subsection{Motivation}
+
+As mentioned in Section~\ref{sec:related-work}, several libraries and tools exist for augmenting image data.
+These approaches alter images by adding Gaussian noise, applying blurring filters, and using geometric transformations like scaling, rotating, translating, cropping, downsampling, and so on.
+While these types of modifications are useful in general image applications, they bear little relation to the types of features comonly found in real-world document image datasets.
+
+A sheet of paper out in the world begins its life as wood pulp, bleached, drained, and pressed flat by a long series of rollers.
+These are cut to size and stacked, then bound in reams and sent out for sale and use.
+This is the last time the sheet is clean in its useful lifetime, and even at this point, manufacturing defects can lead to variations in the paper, even between two pages in the same ream.
+At the point of use, these pages are loaded into a printer where they are stamped or dusted in toner and burned with lasers or sprayed with ink.
+Any of these processes may alter the local texture or global topology of the sheet.
+The pages may receive handwritten marks at any point before or after printing, and may subsequently be folded, creased, crumpled, flattened, burned, stained, soaked, or generally be subject to many other operations.
+\emph{Augraphy}'s suite of augmentations was designed to faithfully reproduce this level of complexity in the document lifecycle.
 
 \subsection{Overview}
 
