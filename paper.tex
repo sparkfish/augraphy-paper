@@ -13,8 +13,9 @@
 \usepackage{pifont}
 \usepackage{listings}
 \usepackage{times}
-\usepackage{wrapfig}
 \renewcommand{\floatpagefraction}{.8}
+\usepackage{etoolbox}
+\AtBeginEnvironment{quote}{\par\singlespacing\small}
 
 % Spacing around floats
 \setlength{\floatsep}{11pt plus 2pt minus 4pt}
@@ -54,6 +55,9 @@
 \lstset{style=mystyle}
 
 \newcommand{\numAugraphyAugmentations}{\emph{26}}
+\newcommand{\numNoisyOfficeUNetEpochs}{\emph{426}}
+\newcommand{\ocrCleanLevenshteinDistance}{\emph{TODO}}
+\newcommand{\ocrAugraphyAverageLevenshteinDistance}{\emph{TODO}}
 
 %
 \begin{document}
@@ -75,32 +79,22 @@
 \maketitle
 
 \begin{abstract}
-This paper introduces Augraphy, a Python library for constructing data augmentation pipelines for producing common perturbations seen in real-world document image datasets.
-Augraphy stands apart from other data augmentation tools by providing many different augmentation strategies to produce augmented versions of clean document images that appear as if they have been distorted from standard office operations, such as printing, scanning, and faxing through old or dirty machines, degradation of ink over time, and handwritten markings.
-We discuss the Augraphy tool, showing how it can be used both as a data augmentation tool for producing diverse training data for tasks such as document de-noising, as well as generating challenging test data for evaluating model robustness on document image modeling tasks.
+This paper introduces Augraphy, a Python library for constructing data augmentation pipelines for producing distortions commonly seen in real-world document image datasets.
+Augraphy stands apart from other data augmentation tools by providing many different strategies to produce augmented versions of clean document images that appear as if they have been altered by standard office operations, such as printing, scanning, and faxing through old or dirty machines, degradation of ink over time, and handwritten markings.
+This paper discusses the Augraphy tool, and shows how it can be used both as a data augmentation tool for (1) producing diverse training data for tasks such as document de-noising, and (2) generating challenging test data for evaluating model robustness on document image modeling tasks.
 
 \end{abstract}
 
-\section{Introduction}
-Life in the modern world involves a plethora of tasks that require automated and intelligent solutions for handling unstructured data.
-Often, this data is in the form of documents, which may appear very different from when they were originally produced, having been altered in the physical world by printing, scanning, or photocopying processes.
+\section{Introduction and Motivation}
+Daily life in the modern world involves a plethora of tasks requiring the handling of unstructured data.
+Often, this data is in the form of documents, which may appear very different from when they were originally produced, having been physically altered by printing, scanning, or photocopying processes.
 Such real-world phenomena may introduce many types of distortions: for instance, folds, wrinkles, or tears in a page can cause color changes and shadows in a scanned document image; low or high printer ink settings may cause some regions of a document to be lighter or darker; and human-made annotations like highlighting or pencil marks can add noise to the page.
 
-Many machine learning operations involving documents are impacted by the presence of noise; high-level tasks like document classification and information extraction are often expected to perform well even on noisily-scanned document images.
+Many machine learning operations involving documents are impacted by the presence of noise, while high-level tasks like document classification and information extraction are frequently expected to perform well even on noisily-scanned document images.
 For instance, the RVL-CDIP document classification corpus \cite{harley2015icdar-rvlcdip} consists of scanned document images, many of which have substantial amounts of scanner-induced noise, as does the FUNSD form understanding benchmark \cite{jaume2019-funsd}.
 Other intermediate-level tasks like optical character recognition (OCR) and page layout analysis may perform optimally if noise in a document image is minimized \cite{character-recognition-systems,ogorman-document-image-analysis,Rotman2022-hh}.
-Further, the lower-level task of document de-noising tackles the document noise problem more directly by attempting to remove noise from a document image \cite{ref_noisyoffice,blind-denoising-iccv-2021,kulkarni-2020,patch-based-document-denoising,Mustafa_2018-wan}.
-Such tasks benefit from copious amounts of training data, and one way of generating large amounts of training data with noise-like artefacts is to use data augmentation.
-
-%\begin{figure} % temp placeholder for figure... this figure should be compelling and help the reader understand what Augraphy is about
-%\centering
-%\fbox{
-%    \begin{minipage}{2in}
-%        \hfill\vspace{1in}
-%    \end{minipage}
-%    }
-%\caption{Placeholder for compelling figure to help the reader understand what Augraphy is about.}   
-%\end{figure}
+The lower-level task of document de-noising tackles the document noise problem directly, by attempting to remove noise from a document image \cite{ref_noisyoffice,blind-denoising-iccv-2021,kulkarni-2020,patch-based-document-denoising,Mustafa_2018-wan}.
+All of these tasks benefit from copious amounts of training data, and one way of generating large amounts of training data with noise-like artefacts is to use data augmentation.
 
 \begin{figure}
     \centering\scalebox{0.475}{
@@ -109,9 +103,9 @@ Such tasks benefit from copious amounts of training data, and one way of generat
     \label{fig:intro}
 \end{figure}
 
-For this reason we introduce \emph{Augraphy}, an open-source Python-based data augmentation library for generating versions of document images that contain realistic noise artefacts commonly introduced via scanning, photocopying, and other office room procedures.
+For this reason we introduce \emph{Augraphy}, an open-source Python-based data augmentation library for generating versions of document images that contain realistic noise artefacts commonly introduced via scanning, photocopying, and other office procedures.
 \emph{Augraphy} differs from most image data augmentation tools by specifically targeting the types of alterations and degradations seen in document images.
-\emph{Augraphy} offers \numAugraphyAugmentations ~individual augmentation methods out-of-the-box across three ``phases" of augmentations, and these individual phase augmentations can be composed together along with a where different paper backgrounds can be added to the augmented image.
+\emph{Augraphy} offers \numAugraphyAugmentations ~individual augmentation methods out-of-the-box across three ``phases" of augmentations, and these individual phase augmentations can be composed together along with a ``paper factory" step where different paper backgrounds can be added to the augmented image.
 The resulting document images are realistic, noisy versions of clean documents, as evidenced in Figure~\ref{fig:intro}, where we apply several \emph{Augraphy} augmentations to a clean document image in order to mimic the types of noise seen in a real-world noisy document image from RVL-CDIP.
 This paper provides an overview of the \emph{Augraphy} library, and demonstrates how it can be used both as a training data augmentation tool and as an effective means for producing data for robustness testing.
 
@@ -126,7 +120,7 @@ This paper provides an overview of the \emph{Augraphy} library, and demonstrates
     \midrule
         \emph{Augmentor} \cite{augmentor} & 27 & \xmark &  & \cmark & MIT \\
         \emph{Albumentations} \cite{ref_albumentations} & 216 & \xmark & \cmark & \cmark & MIT \\
-        \emph{imgaug} \cite{ref_imgaug} & 168& \xmark & \cmark & \cmark & MIT \\
+        \emph{imgaug} \cite{ref_imgaug} & 168 & \xmark & \cmark & \cmark & MIT \\
         \emph{Augly} \cite{Papakipos2022-gq-augly} & 34 & \xmark & & \cmark & MIT \\
         \emph{DocCreator} \cite{ref_DocCreator} & 12 & \cmark & \xmark & \xmark & LGPL-3.0 \\
         \emph{Augraphy} (ours) & \numAugraphyAugmentations & \cmark & \cmark & \cmark & MIT\\
@@ -135,65 +129,53 @@ This paper provides an overview of the \emph{Augraphy} library, and demonstrates
     \label{tab:augmentation-library-comparison}
 \end{table}
 
-\section{Related Work}\label{sec:related-work}
+\section{Related Work}
 
-%This section discusses prior work related to document data augmentation, robustness testing, and document de-noising.
+
 This section discusses prior work related to data augmentation and robustness testing, especially as it relates to document understanding and processing tasks.
 
 \subsection{Data Augmentation}
-A wide variety of data augmentation tools and pipelines exist for machine learning tasks ranging from natural language processing (e.g., \cite{feng-etal-2021-survey,fadaee-etal-2017-data,wei-zou-2019-eda}), audio and speech processing (e.g., \cite{ko15_interspeech,audiogmenter,audio-framework}), and computer vision and image processing.
-In the image realm of image processing and computer vision, data augmentation tools and pipelines include \emph{Augly} \cite{Papakipos2022-gq-augly}, \emph{Augmentor} \cite{augmentor}, \emph{Albumentations} \cite{ref_albumentations}, \emph{DocCreator} \cite{ref_DocCreator}, Pytorch \cite{pytorch}, and \emph{imgaug} \cite{ref_imgaug}.
-Augmentation strategies from these image-centric libraries are typically general purpose, and include image transformations like rotations, warps, and color modifications.
-Table~\ref{tab:augmentation-library-comparison} compares \emph{Augraphy} with other image-based data augmentation libraries and tools.
+A wide variety of data augmentation tools and pipelines exist for machine learning tasks, including  natural language processing (e.g., \cite{feng-etal-2021-survey,fadaee-etal-2017-data,wei-zou-2019-eda}), audio and speech processing (e.g., \cite{ko15_interspeech,audiogmenter,audio-framework}), and computer vision and image processing.
+In the latter realm, popular tools include \emph{Augly} \cite{Papakipos2022-gq-augly}, \emph{Augmentor} \cite{augmentor}, \emph{Albumentations} \cite{ref_albumentations}, \emph{DocCreator} \cite{ref_DocCreator}, and \emph{imgaug} \cite{ref_imgaug}.
+Augmentation strategies from these image-centric libraries are typically general-purpose, and include transformations like rotations, warps, and color modifications.
+Table~\ref{tab:augmentation-library-comparison} compares \emph{Augraphy} with other image augmentation libraries and tools.
 As can be seen, these other data augmentation libraries do not specifically provide support for imitating the corruptions commonly seen in document analysis corpora.
 
 A notable exception to this is the \emph{DocCreator} image synthesizing tool \cite{ref_DocCreator}, which is targeted towards creating synthetic images that mimic common corruptions seen in document collections.
-\emph{DocCreator} differs from \emph{Augraphy} in several ways, however.
-The first difference is that \emph{DocCreator}'s augmentations are meant to imitate those seen in historical (e.g., ancient or medieval) documents, while \emph{Augraphy} is meant to replicate noise caused by noisy office room procedures.
-\emph{DocCreator} is also written in the C++ programming language and is a monolithic what-you-see-is-what-you-get (WYSIWYG) tool, and does not have a scripting or API interface to enable use in a broader machine learning pipeline.
-\emph{Augraphy}, in contrast, is written in Python and can be easily integrated into machine learning model development and evaluation pipelines, and can easily be used alongside other Python packages.
+\emph{DocCreator} differs from \emph{Augraphy} in several crucial ways.
+The first difference is that \emph{DocCreator}'s augmentations are meant to imitate those seen in historical (e.g., ancient or medieval) documents, while \emph{Augraphy} is intended to replicate noise caused by office room procedures.
+\emph{DocCreator} was also written in the C++ programming language as a monolithic what-you-see-is-what-you-get tool, and does not have a scripting or API interface to enable use in a broader machine learning pipeline.
+\emph{Augraphy}, in contrast, is written in Python and can be easily integrated into machine learning model development and evaluation pipelines, alongside other Python packages like PyTorch \cite{ref_PyTorch}.
 
 \subsection{Robustness Testing}
 
 The introduction of noise-like corruptions and other modifications to image data can be used as a way of estimating and evaluating model robustness.
 Prior work in this space includes the use of image blurring, contrast and brightness changes, color alterations, partial occlusions, geometric transformations, pixel-level noise (e.g., salt-and-pepper noise, impulse noise, etc.), and compression artefacts (e.g., JPEG) to evaluate image classification and object detection models (e.g., \cite{image-quality-impact,imagenet-c,pathology-recommendations,Hosseini2017-kn-google-api,face-recognition-impact,pathology-schomig,Vasiljevic2016-al-bluring-impact}).
 More specific to the document understanding field, recent prior work has used basic noise-like corruptions to evaluate the robustness of document classifiers trained on RVL-CDIP \cite{saifullah-2022}.
-Our paper also uses robustness testing as a way to showcase the effectiveness of \emph{Augraphy}, but rather than general image modifications like those described above, we use document-centric modifications.
+Our paper also uses robustness testing as a way to showcase the effectiveness of \emph{Augraphy}, but rather than general image modifications like those described above, we use document-centric modifications to produce human-readable distortions which challenge OCR models.
 
-%\section{Document Distortion, Theory \& Technique}
-%Many approaches exist for adding features to an image, and many types of feature can be generated. The most common types of features added are Gaussian noise, blurring, geometric transformations like scaling, rotating, translating, and cropping, downsampling, font weighting, and so on.\\
-%
-%These types of feature are certainly useful in general image analysis and understanding, but bear little relation to the types of features commonly found in real-world documents. A sheet of paper out in the world begins its life as wood pulp, bleached, drained, and pressed flat by a long series of rollers. These are cut to size and stacked, then bound in reams and sent out for sale and use. This is the last time the sheet is clean in its useful lifetime, and even at this point, manufacturing defects can lead to variations in the paper, even between two pages in the same ream. At the point of use, these pages are loaded into a printer where they are stamped or dusted in toner and burned with lasers or sprayed with ink. Any of these processes may alter the local texture or global topology of the sheet. The pages may receive handwritten marks at any point before or after printing, and may subsequently be folded, creased, crumpled, flattened, burned, stained, soaked, or generally be subject to any of a million other operations. Any secretary can describe hundreds of different document distortion features; any schoolteacher, thousands.\\
-%
-%Augraphy's suite of augmentations was designed to faithfully reproduce this level of complexity in the document lifecycle. Every feature just listed has either a direct implementation already within the library or on the development roadmap, with more planned.\\
-%
-%Some techniques exist for introducing these features into images of documents, including but not limited to the following:
-%\begin{enumerate}
-%\item Text can be generated independently of the paper texture, and can be overlaid onto the "paper" by a number of blending functions, allowing a variety of paper textures to be used. The NoisyOffice team did this.
-%\item Similarly, any markup features may be generated and overlaid by the same methods.
-%\item Documents can be digitized with a commercial scanner, or converted to a continuous analog signal and back with a fax machine.
-%\item The finished document image can be used as a texture and attached to a 3D mesh, then projected back to 2 dimensions to simulate physical deformation. DocCreator has a function to do this.
-%\end{enumerate}
-%
-%Augraphy already has a story for the first three, with the fourth in planning.
+\section{Document Distortion, Theory \& Technique}
+Many approaches exist for adding features to an image, and many types of feature can be generated. The most common types of features added are Gaussian noise, blurring, geometric transformations like scaling, rotating, translating, and cropping, downsampling, font weighting, and so on.\\
+
+These types of feature are certainly useful in general image analysis and understanding, but bear little relation to the types of features commonly found in real-world documents.
+
+A sheet of paper out in the world begins its life as wood pulp, bleached, drained, and pressed flat by a long series of rollers. These are cut to size and stacked, then bound in reams and sent out for sale and use. This is the last time the sheet is clean in its useful lifetime, and even at this point, manufacturing defects can lead to variations in the paper, even between two pages in the same ream. At the point of use, these pages are loaded into a printer where they are stamped or dusted in toner and burned with lasers or sprayed with ink. Any of these processes may alter the local texture or global topology of the sheet. The pages may receive handwritten marks at any point before or after printing, and may subsequently be folded, creased, crumpled, flattened, burned, stained, soaked, or generally be subject to any of a million other operations. Any secretary can describe hundreds of different document distortion features; any schoolteacher, thousands.\\
+
+Augraphy's suite of augmentations was designed to faithfully reproduce this level of complexity in the document lifecycle. Every feature just listed already has a direct implementation either within the library or on the development roadmap, with many more planned.\\
+
+Some techniques exist for introducing these features into images of documents, including but not limited to the following:
+\begin{enumerate}
+\item Text can be generated independently of the paper texture, and can be overlaid onto the "paper" by a number of blending functions, allowing a variety of paper textures to be used. The NoisyOffice team did this.
+\item Similarly, any markup features may be generated and overlaid by the same methods.
+\item Documents can be digitized with a commercial scanner, or converted to a continuous analog signal and back with a fax machine.
+\item The finished document image can be used as a texture and attached to a 3D mesh, then projected back to 2 dimensions to simulate physical deformation. DocCreator has a function to do this.
+\end{enumerate}
+
+Augraphy already has a story for the first three, with the fourth in planning.
 
 \section{Augraphy}
 This section dives into detail about the \emph{Augraphy} library.
-We first provide a high-level motivation for and overview of the library, then discuss the various augmentations supported out-of-the-box, and finally discuss details of the structure of the library.
-
-\subsection{Motivation}
-
-As mentioned in Section~\ref{sec:related-work}, several libraries and tools exist for augmenting image data.
-These approaches alter images by adding Gaussian noise, applying blurring filters, and using geometric transformations like scaling, rotating, translating, cropping, downsampling, and so on.
-While these types of modifications are useful in general image applications, they bear little relation to the types of features comonly found in real-world document image datasets.
-
-A sheet of paper out in the world begins its life as wood pulp, bleached, drained, and pressed flat by a long series of rollers.
-These are cut to size and stacked, then bound in reams and sent out for sale and use.
-This is the last time the sheet is clean in its useful lifetime, and even at this point, manufacturing defects can lead to variations in the paper, even between two pages in the same ream.
-At the point of use, these pages are loaded into a printer where they are stamped or dusted in toner and burned with lasers or sprayed with ink.
-Any of these processes may alter the local texture or global topology of the sheet.
-The pages may receive handwritten marks at any point before or after printing, and may subsequently be folded, creased, crumpled, flattened, burned, stained, soaked, or generally be subject to many other operations.
-\emph{Augraphy}'s suite of augmentations was designed to faithfully reproduce this level of complexity in the document lifecycle.
+We first provide a high-level overview of the library, then discuss the various augmentations supported out-of-the-box, and finally discuss details of the structure of the library.
 
 \subsection{Overview}
 
@@ -202,25 +184,29 @@ It is registered on the Python Package Index (PyPI) and can be installed using
 \begin{center}
 \textbf{\texttt{pip install augraphy}}
 \end{center}
-\emph{Augraphy} requires only a few other commonly-used Python scientific computing or image handling packages in order to run, such as NumPy \cite{numpy}. \emph{Augraphy} has been tested on Windows, Linux, and Mac computing environments. Listing \ref{lst:sample-code} shows how easy it is to get \emph{Augraphy} up and running to create a straightforward augmentation pipeline and apply it to an image:
-%Examples of output generated by \emph{Augraphy} are shown in Figure~\ref{fig:augraphy_examples_3x5}.
+\emph{Augraphy} requires only a few other commonly-used Python scientific computing or image handling packages in order to run, such as NumPy \cite{numpy}. \emph{Augraphy} has been tested on Windows, Linux, and Mac computing environments and supports several recent major versions of Python 3. Listing \ref{lst:sample-code} shows how easy it is to get \emph{Augraphy} up and running to create a straightforward augmentation pipeline and apply it to an image:
 
 \begin{lstlisting}[language=Python, label={lst:sample-code}, caption={Transforming an image with \emph{Augraphy}.}]
 import augraphy; import cv2
 pipeline = augraphy.default_augraphy_pipeline()
 img = cv2.imread("image.png")
 data = pipeline.augment(img)
-augmented = data["output"]
+augmented_img = data["output"]
 \end{lstlisting}
 Modern frameworks for machine learning like \emph{fastai} \cite{ref_fastai} aim to simplify the data handling requirements, and concordantly, the \emph{Augraphy} development team takes great pains to ensure our library's ease-of-use and compatibility.
-%We wanted the library
-The library is designed to be immediately useful with little effort, especially as part of a preprocessing step for training machine learning models, so great care was taken to establish good defaults.
+
+\emph{Augraphy} is designed to be immediately useful with little effort, especially as part of a preprocessing step for training machine learning models, so great care was taken to establish good defaults.
 The default \emph{Augraphy} pipeline (shown in the code snippet above) makes use of all of the augmentations available in \emph{Augraphy}, with starting parameters selected after manual visual inspection of several thousand images.
 
-%We were unable to find any tools for producing training images of modern documents, in a way suitable for automated use. The Augraphy library is our attempt at filling this gap.\\
-
-\emph{Augraphy} provides \numAugraphyAugmentations ~unique augmentations, which may be sequenced into a pipeline object that carries out the image manipulation.
+\emph{Augraphy} provides \numAugraphyAugmentations ~unique augmentations, which may be sequenced into pipeline objects which carry out the image manipulation.
 Users of the library can define directed acyclic graphs of images and their transformations via the AugraphyPipeline API, representing the passage of a document through real-world alterations.
+\begin{figure}
+\centering
+\scalebox{0.33}{
+\includegraphics[]{figures/pipeline.png}}
+\caption{Visualization of an Augraphy pipeline, showing the composition of several image augmentations together with a specific paper background} \label{fig:pipeline}
+\end{figure}
+
 \emph{Augraphy} attempts to decompose the lifetime of features accumulating in a document by separating the pipeline into three phases: ink, paper, and post.
 The ink phase exists to sequence effects which specifically alter the printed ink --- like bleedthrough from too much ink on page, extraneous lines or regions from a mechanically faulty printer, or fading over time --- and transform them prior to ``printing".
 
@@ -230,132 +216,93 @@ After ``printing", the document enters the post phase, wherein it may undergo al
 Augmentations are available here which simulate the printed page being folded along multiple axes, marked by handwriting or highlighter, faxed, photocopied, scanned, photographed, burned, stained, and so on.
 Figure~\ref{fig:pipeline} shows the individual phases of an example pipeline combining to produce a noised document image.
 
-\begin{figure}
-\centering
-\scalebox{0.33}{
-\includegraphics[]{figures/pipeline.png}}
-\caption{Visualization of an Augraphy pipeline, showing the composition of several image augmentations together with a specific paper background} \label{fig:pipeline}
-\end{figure}
-
 \subsection{Augraphy Augmentations}
 
 Augraphy provides \numAugraphyAugmentations ~out-of-the-box augmentations.
-These augmentations are listed in Table~\ref{tab:augmentations}, and examples are shown in Figure~\ref{fig:augraphy-examples-github}.
+These augmentations are listed in Table~\ref{tab:augmentations}.
 As mentioned before, Ink Phase augmentations include those that imitate noisy processes that occur in a document's life cycle when ink is printed on paper.
 These augmentations include \texttt{BleedThrough}, which imitates what happens when ink bleeds through from the opposite side of the page.
 Another, \texttt{LowInkLines}, produces a streaking behavior common to printers running out of ink.
 
 Augmentations provided by the Paper Phase include \texttt{BrightnessTexturize}, which introduces random noise in the brightness channel to emulate paper textures, and \texttt{Watermark}, which imitates watermarks in a piece of paper.
 Finally, the Post Phase includes augmentations that imitate noisy-processes that occur after a document has been created.
-These include \texttt{BadPhotoCopy}, which uses added noise to generate an effect of dirty copier, and \texttt{BookBinding}, which creates a book binding effect with shadow and curved lines to imitate how a page from a book might appear after being scanned with a flatbed scanner.
-Other general-purpose augmentation libraries already exist for adding basic effects like blur, scaling, and rotation, but \emph{Augraphy} includes these types of augmentations as well.
-Descriptions of- and motivation for each augmentation are available on GitHub. \footnote{\url{https://github.com/sparkfish/augraphy}}
-% TODO: is there a more precise link for these descriptions?
+These include \texttt{BadPhotoCopy}, which uses added noise to generate an effect of dirty copier, and \texttt{BookBinding}, which creates an effect with shadow and curved lines to imitate how a page from a book might appear after capture by a flatbed scanner.
 
-%Augraphy is designed to replicate noise-like effects seen in real-world documents, and the library's
-%, so each augmentation represents a feature that will appear in the final dataset.
-%augmentations come in many flavors and types, varying not only in their visual effect but also in their software design.
-%Other libraries already exist for adding basic effects like blur, scaling, and rotation; Augraphy includes augmentations for these as well. The more interesting effects come from a combination of primitive effects, and mimic document types out in the world.\\
+Other general-purpose augmentation libraries already exist for adding basic effects like blur, scaling, and rotation, but \emph{Augraphy} includes these types of augmentations for completeness and utility.
+Descriptions of each augmentation are available online, along with the motivation for their development. \footnote{\url{https://augraphy.readthedocs.io/en/latest/}}
 
-% TODO: I don't think this table is entirely correct, some augmentations might be listed in the wrong columns
 \begin{table}[]
     \centering
-    \caption{Individual \emph{Augraphy} augmentations for each augmentation phase.}
+    \caption{Individual \emph{Augraphy} augmentations for each augmentation phase, in suggested position within the pipeline. Augmentations that work well in more than one phase are listed in the last column.}
     \scalebox{0.81}{
-    \begin{tabular}{lll}
+    \begin{tabular}{llll}
     \toprule
-        \textbf{Ink Phase} & \textbf{Paper Phase} & \textbf{Post Phase} \\
+        \textbf{Ink Phase} & \textbf{Paper Phase} & \textbf{Post Phase} & \textbf{Multiple} \\
         \midrule
-        \textsf{BleedThrough} & \textsf{BrightnessTexturize} & \textsf{BadPhotoCopy} \\
-        \textsf{DirtyDrum} & \textsf{ColorPaper} & \textsf{BindingsAndFasteners} \\
-        \textsf{DirtyRollers} & \textsf{Gamma} & \textsf{BookBinding} \\
-        \textsf{Dithering} & \textsf{Geometric} & \textsf{Folding} \\
-        \textsf{Faxify} & \textsf{LightingGradient} & \textsf{JPEG} \\
-        \textsf{InkBleed} & \textsf{PageBorder} & \textsf{NoiseTexturize} \\
-        \textsf{Letterpress} & \textsf{SubtleNoise} & \textsf{Watermark} \\
-        \textsf{LowInkLine} & & \\
-        \textsf{Markup} & & \\
-        \textsf{PencilScribbles} & & \\
+        \textsf{BleedThrough} &  \textsf{ColorPaper}& \textsf{BadPhotoCopy} & \textsf{BrightnessTexturize} \\
+        \textsf{LowInkLines} & \textsf{Watermark} & \textsf{BindingsAndFasteners} & \textsf{DirtyDrum} \\
+        \textsf{InkBleed} & \textsf{Gamma} & \textsf{BookBinding} & \textsf{DirtyRollers} \\
+        \textsf{Letterpress} & \textsf{LightingGradient} & \textsf{Folding} & \textsf{Dithering} \\
+        & \textsf{SubtleNoise} & \textsf{JPEG} & \textsf{Geometric}\\
+        & & \textsf{Markup} & \textsf{NoiseTexturize}\\
+        & & \textsf{Faxify} & \textsf{PencilScribbles}\\
+        & & \textsf{PageBorder} & \\
         \bottomrule
     \end{tabular}}
     \label{tab:augmentations}
 \end{table}
 
 \subsection{The Augraphy Library}
-\emph{Augraphy} is a Python-based library, allowing for maximal accessibility for practitioners,
-%The library was developed in Python, to allow maximal accessibility for practitioners,
-and is designed with an object-oriented structure, with concerns divided across a class hierarchy.
-When composed, different parts of the library interact to produce complex sequences of document image transformations, generating new synthetically-augmented document images.
-
-%Modern frameworks for machine learning like \emph{fastai} \cite{ref_fastai} aim to simplify the data handling requirements, and concordantly, the \emph{Augraphy} development team takes great pains to ensure our library's ease-of-use and compatibility.
-%We wanted the library to be immediately useful with little effort, especially as part of a preprocessing step for training machine learning models, so great care was taken to establish good defaults.
-%The default Augraphy pipeline makes use of all of the augmentations available in \emph{Augraphy}, with starting parameters selected after manual visual inspection of several thousand images.
-%Adding a diverse array of realistic features to documents can be done with the following five-line incantation:
-%\begin{lstlisting}[language=Python]
-%from augraphy import *
-%pipeline = default_augraphy_pipeline()
-%img = cv2.imread("image.png")
-%data = pipeline.augment(img)
-%augmented_img = data["output"]
-%\end{lstlisting}
-
-%\subsection{Base}
-%\texttt{augraphy.base} is the core of the library, containing the central class for augmentations, another class for sequences of augmentations, and the pipeline class itself. The base classes exist to coordinate the compilation of discrete transformations into a larger pipeline, and to facilitate the operation and maintenance of these.\\
-
-%There are four ''main sequence'' classes in \texttt{augraphy.base}, which together provide the bulk of the library's functionality. Two additional classes, \texttt{OneOf} and \texttt{PaperFactory}, provide additional variation to pipelines in ways explored soon.
+\emph{Augraphy} is a Python-based library, allowing for maximal accessibility for practitioners, and is designed with an object-oriented structure, with concerns divided across a class hierarchy.
+When composed, augmentations from the library interact to produce complex document image transformations, generating realistic new synthetically-augmented document images.
 
 There are four ``main sequence" classes in the \emph{Augraphy} codebase, which together provide the bulk of the library's functionality.
-%Two additional classes --- \texttt{OneOf} and \texttt{PaperFactory} --- provide additional variation to pipelines in ways 
+
 We now discuss each of these:
 
-%\subsubsection{Augmentation}
 \smallskip
 \noindent\textbf{\texttt{Augmentation}.} ~The \texttt{Augmentation} class is the most basic class in the project, and essentially exists as a thin wrapper over a probability value in the interval [0,1].
-Every augmentation object is constructed with a probability of that augmentation being applied during the execution of a pipeline containing it.
-This class also contains a method which interacts with the probability data, dynamically generating a second floating point probability value and using this to decide whether the augmentation should be applied at runtime.
+Every augmentation contained in a pipeline has its own chance of being applied during that pipeline's execution.
 
-%\subsubsection{AugmentationResult}
 \smallskip
 \noindent\textbf{\texttt{AugmentationResult}.} ~After an augmentation is applied, the output of its execution is stored in an \texttt{AugmentationResult} object and passed forward through the pipeline.
-These objects also record an exact copy of the augmentation object that was instantiated and applied, as well as any metadata that might be relevant for debugging or other advanced use.
+These objects also record a full copy of the augmentation runtime data, as well as any metadata that might be relevant for debugging or other advanced use.
 
-%\subsubsection{AugmentationSequence}
 \smallskip
 \noindent\textbf{\texttt{AugmentationSequence}.} ~A list of \texttt{Augmentation}s --- together with the intent to apply those Augmentations in sequence --- determines an \texttt{AugmentationSequence}, which is itself both an \texttt{Augmentation} and callable.
 In practice, these are the model for the pipeline phases discussed previously; they are essentially lists of \texttt{Augmentation} constructor calls which produce callable \texttt{Augmentation} objects of the various flavors explored in \texttt{AugmentationSequences} are applied to the image during each of the \texttt{AugmentationPipeline} phases, and in each case yield the image, transformed by some of the Augmentations in the sequence.
 
-%\subsubsection{AugmentationPipeline}
 \smallskip
-\noindent\textbf{\texttt{AugmentationPipeline}.} ~The bulk of the innovation in \emph{Augraphy} resides in the Augmentation pipeline, which is an abstraction over one or more events in a physical document's life.
-Events in this case could be the initial printing of the document when ink adhered to the paper material, or several weeks later when the document was adhered to a public board, annotated, defaced, and torn away from its securing staples.
+\noindent\textbf{\texttt{AugmentationPipeline}.} ~The bulk of the heavy lifting in \emph{Augraphy} resides in the Augmentation pipeline, which is our abstraction over one or more events in a physical document's life.
+
+Consider the following sequence of events:
+\begin{quote}
+The initial printing of the document when ink adhered to the paper material, or several weeks later when the document was adhered to a public board, annotated, defaced, and torn away from its securing staples.
 Fifty years later, our protagonist page resurfaces in the library archive during routine preservation-scanning efforts. Conservationists use delicate tools to gently position and record an image of the document, storing this in a public repository.
+\end{quote}
 An \texttt{AugmentationPipeline} can model this entire sequence of events, or any individual event within.
 
 Realistically reproducing effects in document images requires rethinking how those effects are produced in the real world.
 Many issues, like the various forms of misprint, only affect text and images on the page.
 Others, like a coffee spill, change properties of the paper itself. Further still, there are transformations like physical deformations which alter the geometry and topology of both the page material and the graphical artifacts on it.
 Effectively capturing processes like these in reproducible augmentations means separating our model of a document augmentation pipeline into ink, paper, and post-processing layers, each containing some augmentations that modify the document image as it passes through.
-ils down to the definition and application of one or more pipelines to one or more images.
+Producing realistically noisy document images can now be reduced to the definition and application of one or more Augraphy pipelines to some clean document images.
 
-The value added by the \texttt{AugrapyPipeline} class over a bare list of functions mapped over an image is principally in the collection of metadata:
+The value added by the \texttt{AugraphyPipeline} class over a bare list of functions mapped over an image is principally in the collection of runtime metadata:
 the output of an \texttt{AugraphyPipeline} application is a Python dictionary which contains not only the final image, but copies of every intermediate image, as well as information about the object constructors and their parameters that were used for each augmentation.
-This allows for easy inspection and fine-tuning of the pipeline definition to achieve outputs with desired features.
+This allows for easy inspection and fine-tuning of the pipeline definition to achieve outputs with desired features, facilitating (re)production of documents as in Figure 1 \ref{fig:intro}.
 
 \smallskip
-There are two additional classes that provide additional functionality in order to round out the \emph{Augraphy} library:
+There are two additional classes that provide additional functionality in order to round out the \emph{Augraphy} base library:
 
-%\subsubsection{OneOf}
-%\smallskip
-\noindent\textbf{\texttt{OneOf}.} ~Real-world processes generally allow for objects to exist in multiple states over time.
-To model the possibility that a document image has undergone one and only one of a collection of augmentations, we use \texttt{OneOf}, which simply selects one of those augmentations from a given list, and uses this to modify the image.
+\noindent\textbf{\texttt{OneOf}.} ~To model the possibility that a document image has undergone one and only one of a collection of augmentations, we use \texttt{OneOf}, which simply selects one of those augmentations from the given list, and uses this to modify the image.
 
-%\subsubsection{PaperFactory}
 \smallskip
 \noindent\textbf{\texttt{PaperFactory}.} ~We often print on multiple sizes and kinds of paper, and out in the world we certainly \textit{encounter} such diverse documents.
 We introduce this variation into the \texttt{AugmentationPipeline} by including \texttt{PaperFactory} in the \texttt{paper} phase of the pipeline.
 This augmentation checks a local directory for images of paper to crop, scale, and use as a background for the document image.
 The pipeline contains edge detection logic for lifting only text and other foreground objects from a clean image, greatly simplifying the ``printing" onto another ``sheet", and capturing in a reproducible way the construction method used to generate the NoisyOffice database.
-Taken together, \texttt{PaperFactory} makes it effectively possible to re-print a document onto other surfaces, like hemp paper, cardboard, or wood.
+Taken together, \texttt{PaperFactory} makes it trivial to re-print a document onto other surfaces, like hemp paper, cardboard, or wood.
 
 \smallskip
 Interoperability and flexibility are core requirements of any data augmentation library, so \emph{Augraphy} includes several utility classes designed to improve developer experience:
@@ -369,51 +316,25 @@ Interoperability and flexibility are core requirements of any data augmentation 
 \smallskip
 \noindent\textbf{\texttt{ImageOverlay}.} ~This class uses various blending algorithms to fuse foreground and background images together, which is useful for simulating ``printing".
 
-%\subsection{Augmentations}
-%The \texttt{base} modules provide scaffolding for working with general transformations on document images, called \texttt{augmentations}. We have already included many such transforms in the standard library, and have also provided utilities for easily building new augmentations and integrating them into the Augraphy workflow.\\
-
-%Augraphy was designed to replicate effects seen in real-world documents in training data for image models, so each augmentation represents a feature that will appear in the final dataset. Augmentations come in many flavors and types, varying not only in their visual effect but also in their software design. Other libraries already exist for adding basic effects like blur, scaling, and rotation; Augraphy includes augmentations for these as well. The more interesting effects come from a combination of primitive effects, and mimic document types out in the world.\\
-
-%Figures 2 and 3 contain representative images of each augmentation applied to this very document. Descriptions of and motivation for each augmentation are available on GitHub \footnote{\url{https://github.com/sparkfish/augraphy}}.
-
-%\begin{figure}
-%\includegraphics[width=\textwidth]{augmentations1.png}
-%\caption{Examples of each augmentation.} \label{fig2}
-%\end{figure}
-%
-%\begin{figure}
-%\includegraphics[width=\textwidth]{augmentations2.png}
-%\caption{Examples of each augmentation.} \label{fig3}
-%\end{figure}
-
 \begin{figure}
-    \centering\scalebox{0.34}{
-    \includegraphics{figures/augraphy_examples_github.png}}
-    \caption{A subset of various \emph{Augraphy} augmentations on sample images.}
-    \label{fig:augraphy-examples-github}
+\includegraphics[width=\textwidth]{figures/augmentation-matrix.png}
+\caption{Examples of some Augraphy augmentations.} \label{fig2}
 \end{figure}
 
-%\subsection{Utilities}\label{utilities}
-%Interoperability and flexibility are core requirements of any data augmentation library, so Augraphy includes several utility classes designed to improve developer experience. Chief among these are \texttt{ComposePipelines}, \texttt{Foreign}, and \texttt{ImageOverlay}, which respectively
-
-%\begin{enumerate}
-%\item provide a means of composing two pipelines into one, allowing for the construction of complex pipeline algebras,
-%\item wrap augmentations from projects like \texttt{Albumentations} \cite{ref_albumentations} and \texttt{imgaug} \cite{ref_imgaug}, and
-%\item uses various blending algorithms to fuse foreground and background images together, useful for simulating "printing".
-%\end{enumerate}
 \emph{Augraphy} pipelines, then, are constructed from three sequences of augmentations, to be applied one after the other in each of those phases.
-Afterch will be covered in some detail in the next section Î transformations occur to the ink and to the paper separately, the pipeline fuses them together, simulating the printing of that ink on that paper.
-Changes to the document after that point happen within the post layer, where we might find effects like crumpling up the page and smoothing it out again, or using a pen to underline a section of text.
-Use of the Augraphy library to produce a dataset for model training Î
+
+After the ink and paper textures are computed separately, they are merged in the manner of Technique 1 from the previous section, simulating the printing of the document.
+After ``printing", the document enters the post phase, wherein it may undergo alterations that would affect an already-printed document out in the world.
+Augmentations are available here which simulate the printed page being folded along multiple axes, marked by handwriting or highlighter, faxed, photocopied, scanned, photographed, burned, stained, and so on.
+Figure~\ref{fig:pipeline} shows the individual phases of an example pipeline combining to produce a noised document image.
 
 \section{Deep Learning with Augraphy}
 Augraphy aims to facilitate rapid dataset creation, advancing the state of the art for document image analysis tasks.
-This section describes a brief experiment using Augraphy to augment the NoisyOffice set, producing a corpus that is used to train a denoising convolutional neural network which outperforms an identically-structured model trained on only the provided NoisyOffice data.
-We continue to return to this database when testing our model training pipelines and new architectures, and felt it an appropriate jumping-off point for Augraphy analysis.
+This section describes a brief experiment using Augraphy to augment the NoisyOffice set, producing a corpus that is used to train a denoising convolutional neural network which outperforms an identically-structured model trained on only the provided NoisyOffice data. We perform the same experiment twice, with different model designs.
+We continue to return to the NoisyOffice database when testing our model training pipelines and new architectures, and felt it an appropriate jumping-off point for analyzing Augraphy.
 
 \subsection{Model Architecture}
-To evaluate Augraphy, we trained an off-the-shelf Nonlinear Activation-Free Network, \cite{NAFNet}.
-This network achieved a high score on the NoisyOffice Kaggle competition \footnote{\url{https://www.kaggle.com/code/michalbrezk/denoise-images-using-autoencoders-tf-keras/notebook}}; we selected this one for its simplicity and the clarity of its exposition, and use it with few changes.
+To evaluate Augraphy, we trained two simple models: the first was a UNet convolutional neural network, taken directly from a submission to the NoisyOffice Kaggle competition  \footnote{\url{https://www.kaggle.com/code/michalbrezk/denoise-images-using-autoencoders-tf-keras/notebook}}. We selected this one for its simplicity and the clarity of its exposition, and use it with few changes. The second model is an off-the-shelf Nonlinear Activation-Free Network, \cite{NAFNet}; we again made only minor changes to the model's training hyperparameters, increasing the batch size to fit our data.
 
 \subsection{Data Generation}
 Despite recent techniques [Training Vision Transformers with Only 2040 Images, Vision Transformer for Small-Size Datasets, Training a Vision Transformer from scratch in less than 24 hours with 1 GPU] for reducing the volume of input data required to train models, data remains king; feeding a model more data during training can help ensure better latent representations of more features, improving robustness of the model and increasing its ability to generalize.
@@ -441,27 +362,29 @@ AugraphyPipeline(ink_phase, paper_phase, post_phase)
 
 In each of the augmentations created above, the probability of applying to the image passing through the pipeline was set to 50\%, and the strikethrough behavior (the default) for the Markup augmentation was set to strike out words with only black lines.
 
-The PaperFactory augmentation reads and randomly crops image textures from a local directory; to this we added two \footnote{\url{https://p2.piqsels.com/preview/642/889/110/paper-crease-creased-texture.jpg
-}}, \footnote{\url{https://blog.miklavcic.si/wp-content/uploads/2011/11/white_paper_1.png}} public domain images of wrinkled paper found on Bing.
+The PaperFactory augmentation reads and randomly crops image textures from a local directory; to this we added two \footnote{\url{https://p2.piqsels.com/preview/642/889/110/paper-crease-creased-texture.jpg}}, \footnote{\url{https://blog.miklavcic.si/wp-content/uploads/2011/11/white_paper_1.png}} public domain images of wrinkled paper found with Bing.
 
 \subsection{Training Regime}
-We fit the model architecture described in the previous section to both the NoisyOffice corpus and a derivative work generated with Augraphy applied to the NoisyOffice ground truth images.
+We fit the models described in the previous section to both the NoisyOffice corpus and a derivative work generated with Augraphy applied to the NoisyOffice ground truth images.
 
-Training proceeded for 600 epochs or until the model began to overfit, with an overfit patience of 30 epochs.
-The NoisyOffice model finished training after 416 epochs, while the Augraphy model trained for the full 600 epochs.
+Training of the UNets proceeded for 600 epochs or until the model began to overfit, with an overfit patience of 30 epochs.
+The NoisyOffice model finished training after \numNoisyOfficeUNetEpochs epochs, while the Augraphy model trained for the full 600 epochs.
 
 Both models were trained with mean squared error as the loss function, using the Adam optimizer, and evaluated with the mean average error metric.
 
+The NAFNet instances trained for 100 epochs, using the default settings provided from the GitHub version.
+All code used in these experiments is available in the Augraphy-Paper GitHub \footnote{\url{https://github.com/sparkfish/augraphy-paper}}.
+
 \subsection{Results}
-Sample predictions from each model on the validation task are presented in Figure 1.
-As expected, the NoisyOffice model performs admirably, but does struggle to fully remove the coffee stain feature, leaving some residue.
-The Augraphy model clearly outperforms the NoisyOffice model at stain removal, but does not generalize well to the folding and wrinkling noise; this was expected, since the Augraphy training data did not include fold or wrinkle features.
-Further, the Augraphy model overcompensates for the \texttt{BadPhotoCopy} behavior on text, by increasing the line thickness in the predicted text, resulting in a bold font.
+Sample predictions from each model on the validation task are presented in Table 1. A new dataset, ShabbyPagesReal, was produced as part of the larger ShabbyPages corpus \cite{ref_ShabbyPages}; this data was manually produced by applying sequences of physical operations to real paper. ShabbyPagesReal is fully out-of-distribution for the models in our experiments, and has a much higher degree of diversity than the NoisyOffice set, providing good conditions for evaluating Augraphy's effect.
+As expected, the NoisyOffice models perform admirably, fitting extremely well to the low-diversity data of the NoisyOffice set, but they do struggle to fully remove the coffee stain feature, leaving some residue. The SSIM score indicates that the Augraphy models generalize much better, though they do overcompensate for the \texttt{BadPhotoCopy} behavior on text, by increasing the line thickness in the predicted text, resulting in a bold font.
+
+%[TODO: is this true?] The Augraphy models clearly outperform the NoisyOffice models at stain removal, but do not generalize well to the folding and wrinkling noise; this was expected, since the Augraphy training data did not include fold or wrinkle features.
 
 \begin{figure}\label{fig4}
 \includegraphics[width=\textwidth]{figures/sidebyside.png}
 \caption{Validation images (left), with the images predicted by the NoisyOffice (center) and Augraphy (right) models.}
-\end{figure}
+\end{figure} %[TODO: can we show this a better way?]
 
 To compare the models' performance on the validation task, we considered the following metrics:
 \begin{enumerate}
@@ -478,18 +401,14 @@ These metrics are displayed in Table 1.
 \begin{table}
 \centering
 \caption{Model training statistics and performance on NoisyOffice validation task}\label{tab1}
-\begin{tabular}{|@{\hspace{2em}}l@{\qquad}|@{\hspace{2em}}l@{\qquad}|@{\hspace{2em}}l@{\qquad}|}
+\begin{tabular}{|@{\hspace{2em}}l@{\qquad}|@{\hspace{2em}}l@{\qquad}|@{\hspace{2em}}l@{\qquad}|@{\hspace{2em}}l@{\qquad}|}
 \hline
-Metric & NoisyOffice & Augraphy\\
+Metric & PSNR & SSIM & RMSE\\
 \hline
-PSNR & 63.09152246942623 & 63.3491691640664\\
-SSIM & 0.8726093605602885 & 0.8662918306486613\\
-RMSE & 0.1878745854176291 & 0.18310202817380003\\
-Test Loss & 0.0011 & 0.0012\\
-Test MAE & 0.0150 & 0.0129\\
-Validation Loss & 7.5551e-04 & 8.22202e-04\\
-Validation MAE & 0.01236 & 0.01076\\
-Training Time & 190ms/step & 218ms/step\\
+NoisyOffice\_UNet & 63.09 & 0.87 & 0.19\\
+Augraphy\_UNet & 63.35 & 0.87 & 0.18\\
+NoisyOffice\_NAFNet & & &
+Augraphy\_NAFNet & & &
 \hline
 \end{tabular}
 \end{table}
@@ -498,43 +417,31 @@ The Augraphy model outperforms the PSNR score of the NoisyOffice model on the va
 These numbers are consistent with the visual prediction results displayed in Figure 1: the Augraphy model predicts fewer pixels in the text (RMSE lower by 2.5\%), but removes more noise and with a higher degree of fidelity than the NoisyOffice model (PSNR higher by 0.2576466946).
 The training metrics collected indicate that the Augraphy model has lower variance so is more precise than the NoisyOffice model, but exhibits higher loss and thus less accuracy in its predictions.
 
-\subsection{Face Detection Robustness Testing}
+\section{Robustness Testing}
+We use Augraphy to add noise to an image of text with known groundtruth. The Tesseract \cite{ref_tesseract} pre-trained OCR model's performance on the clean image is compared to the OCR result on the Augraphy-noised image, then to the true groundtruth string, using the Levenshtein distance. These measures are averaged over 1000 trials, with different Augraphy effects, to give some indication of Augraphy's effect on producing human-readable document images for challenging OCR tasks.
 
-In this section, we use \emph{Augraphy} to investigate the robustness of face detection models on images that have been altered by \emph{Augraphy}.
-In this way, we move beyond analyzing robustness of text-related tasks, but the images we analyze in this section can nonetheless appear in documents like newspapers, which are often scanned from the physical world by noisy scanners.
-Hence, it is important for image-focused models like image classifiers and object detection models to be robust to scanner-induced noise.
+%% [TODO: render this]
+%% \begin{figure}
+%% \includegraphics[width=\textwidth]{figures/augmentation-matrix.png}
+%% \caption{Groundtruth image (left), sample of Augraphy output (right).} \label{fig5}
+%% \end{figure}
 
-\begin{wraptable}{r}{5cm}
-    \centering
-    \caption{Face detection performance.}
-    \begin{tabular}{lr}
-    \toprule
-        \textbf{Model} & \textbf{Accuracy} \\
-        \midrule
-        Azure & 57.1\%\\
-        Google & 60.1\%  \\
-        Amazon & 49.1\% \\
-        UltraFace & 4.5\%\\
-        \bottomrule
-    \end{tabular}
-    \label{tab:face-detection-results}
-\end{wraptable}
+%% [TODO: get results]
+%% \begin{table}[]
+%%     \centering
+%%     \caption{Measuring \emph{Augraphy}'s effect on OCR model performance.}
+%%     \scalebox{0.81}{
+%%     \begin{tabular}{lll}
+%%     \toprule
+%%     \textbf{Groundtruth String} & \textbf{OCR output on clean image \\ distance to true string} & \textbf{Average OCR output on Augraphy-noised images \\ distance to true string} \\
+%%     \midrule
+%%     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." & \ocrCleanLevenshteinDistance & \ocrAugraphyAverageLevenshteinDistance
+%%     \bottomrule
+%%     \end{tabular}}
+%%     \label{tab:levenshtein}
+%% \end{table}
 
-We begin by sampling 75 images from the FDDB face detection benchmark \cite{fddbTech}.
-Then, we use \emph{Augraphy} to generate 10 altered versions of each image and manually remove any augmented image where the face(s) is not reasonably visible.
-We then test four face detection models on the noisy and noise-free images.
-These models are: proprietary face detection models from Google,\footnote{\url{https://cloud.google.com/vision/docs/detecting-faces}} Amazon,\footnote{\url{https://aws.amazon.com/rekognition/}} and Microsoft\footnote{\url{https://azure.microsoft.com/en-us/services/cognitive-services/face}}, and lastly the freely-available UltraFace\footnote{\url{https://github.com/onnx/models/tree/main/vision/body_analysis/ultraface}} model.
-%We then test Microsoft Azure's face detection model on the noise-free and noisy images.
-
-Table~\ref{tab:face-detection-results} shows face detection accuracy of both models on the noisy test set, and example images where no faces were detected by the Microsoft model are shown in Figure \ref{fig:face-detection-mistakes}.
-We see that all four models struggle on the \emph{Augraphy}-augmented data, with the proprietary models seeing detection performances drop to between roughly 50-60\%, and UltraFace detecting only 4.5\% of faces that it found in the noise-free data.
-
-\begin{figure}
-    \centering\scalebox{0.47}{
-    \includegraphics{figures/azure_1x3_face_errors.pdf}}
-    \caption{Example augmented images that yielded false-positive predictions with the Azure face detector.}
-    \label{fig:face-detection-mistakes}
-\end{figure}
+%% In Table 3 \ref{tab:levenshtein}, it can be seen that Augraphy introduces features which confound the Tesseract pre-trained OCR model.
 
 \section{Future Work}
 This section describes new directions for research and development.
@@ -569,7 +476,7 @@ Performance enhancements to the library are already underway, which will decreas
 \section{Conclusion}
 We presented Augraphy, an augmentation framework for generating realistic datasets of modern document images.
 Two other players in the same space were examined and found lacking for our purposes, motivating the creation of this library.
-We described creating an Augraphy-noised version of the NoisyOffice dataset, then compared some preliminary results obtained by training a convolutional U-Net on these datasets.
+We described creating an Augraphy-noised version of the NoisyOffice dataset, then compared some preliminary results obtained by training a convolutional U-Net and a NAFNet on these datasets.
 Finally, we discussed some future directions for research, and the continued evolution of this tool.
 Augraphy is licensed under the MIT open source license, and readers are invited to participate in its development on GitHub.
 
