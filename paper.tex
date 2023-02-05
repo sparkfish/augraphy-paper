@@ -33,6 +33,7 @@
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{superlightgray}{RGB}{242,242,242}
 
 \lstdefinestyle{mystyle}{
     backgroundcolor=\color{backcolour},   
@@ -183,20 +184,18 @@ We first provide a high-level overview of the library, then discuss the various 
 
 \subsection{Overview}
 
-\emph{Augraphy} is a lightweight Python package for applying realistic perturbations to document images.
-It is registered on the Python Package Index (PyPI) and can be installed using
-\begin{center}
-\textbf{\texttt{pip install augraphy}}
-\end{center}
-\emph{Augraphy} requires only a few other commonly-used Python scientific computing or image handling packages in order to run, such as NumPy \cite{ref_numpy}. \emph{Augraphy} has been tested on Windows, Linux, and Mac computing environments and supports several recent major versions of Python 3. Listing \ref{lst:sample-code} shows how easy it is to get \emph{Augraphy} up and running to create a straightforward augmentation pipeline and apply it to an image:
+\emph{Augraphy} is a lightweight Python package for applying realistic perturbations to document images. It is registered on the Python Package Index (PyPI) and can be installed simply using \colorbox{superlightgray}{\textbf{\texttt{pip install augraphy}}}.
 
-\begin{lstlisting}[language=Python, label={lst:sample-code}, caption={Transforming an image with \emph{Augraphy}.}]
+\emph{Augraphy} requires only a few commonly-used Python scientific computing or image handling packages, such as NumPy \cite{ref_numpy}, and has been tested on Windows, Linux, and Mac computing environments and supports recent major versions of Python 3.  Below is a basic out-of-the-box \emph{Augraphy} pipeline demonstrating its usage:
+
+\begin{lstlisting}[language=Python, label={lst:sample-code}, caption={Augmenting a document image with \emph{Augraphy}.}]
 import augraphy; import cv2
 pipeline = augraphy.default_augraphy_pipeline()
 img = cv2.imread("image.png")
 data = pipeline.augment(img)
 augmented_img = data["output"]
 \end{lstlisting}
+
 Modern frameworks for machine learning like \emph{fastai} \cite{ref_fastai} aim to simplify the data handling requirements, and concordantly, the \emph{Augraphy} development team takes great pains to ensure our library's ease-of-use and compatibility.
 
 \emph{Augraphy} is designed to be immediately useful with little effort, especially as part of a preprocessing step for training machine learning models, so great care was taken to establish good defaults.
@@ -204,9 +203,10 @@ The default \emph{Augraphy} pipeline (shown in the code snippet above) makes use
 
 \emph{Augraphy} provides \numAugraphyAugmentations ~unique augmentations, which may be sequenced into pipeline objects which carry out the image manipulation.
 Users of the library can define directed acyclic graphs of images and their transformations via the AugraphyPipeline API, representing the passage of a document through real-world alterations.
+
 \begin{figure}
 \centering
-\scalebox{0.33}{
+\scalebox{0.3}{
 \includegraphics[]{figures/pipeline.png}}
 \caption{Visualization of an Augraphy pipeline, showing the composition of several image augmentations together with a specific paper background} \label{fig:pipeline}
 \end{figure}
@@ -214,10 +214,10 @@ Users of the library can define directed acyclic graphs of images and their tran
 \emph{Augraphy} attempts to decompose the lifetime of features accumulating in a document by separating the pipeline into three phases: ink, paper, and post.
 The ink phase exists to sequence effects which specifically alter the printed ink --- like bleedthrough from too much ink on page, extraneous lines or regions from a mechanically faulty printer, or fading over time --- and transform them prior to ``printing".
 
-The paper phase is concerned with transformations of the underlying paper on which the ink gets printed; here, a \texttt{PaperFactory} generator is utilized for creating a random texture from a set of given texture images, as well as effects like random noise, shadowing, watermarking, and staining.
-After the ink and paper textures are computed separately, they are merged in the manner of Technique 1 from the previous section, simulating the printing of the document.
+The paper phase applies transformations of the underlying paper on which the ink gets printed; here, a \texttt{PaperFactory} generator creates a random texture from a set of given texture images, as well as effects like random noise, shadowing, watermarking, and staining.
+After the ink and paper textures are separately computed, they are merged in the manner of Technique 1 from the previous section, simulating the printing of the document.
 After ``printing", the document enters the post phase, wherein it may undergo alterations that would affect an already-printed document out in the world.
-Augmentations are available here which simulate the printed page being folded along multiple axes, marked by handwriting or highlighter, faxed, photocopied, scanned, photographed, burned, stained, and so on.
+Augmentations are available here which simulate the printed page being folded along multiple axes, marked by handwriting or color highlighter, faxed, photocopied, scanned, photographed, burned, stained, and so on.
 Figure~\ref{fig:pipeline} shows the individual phases of an example pipeline combining to produce a noised document image.
 
 \subsection{Augraphy Augmentations}
@@ -297,7 +297,7 @@ the output of an \texttt{AugraphyPipeline} application is a Python dictionary wh
 This allows for easy inspection and fine-tuning of the pipeline definition to achieve outputs with desired features, facilitating (re)production of documents as in Figure 1 \ref{fig:intro}.
 
 \smallskip
-There are two additional classes that provide additional functionality in order to round out the \emph{Augraphy} base library:
+There are also two classes that provide additional functionality in order to round out the \emph{Augraphy} base library:
 
 \noindent\textbf{\texttt{OneOf}.} ~To model the possibility that a document image has undergone one and only one of a collection of augmentations, we use \texttt{OneOf}, which simply selects one of those augmentations from the given list, and uses this to modify the image.
 
