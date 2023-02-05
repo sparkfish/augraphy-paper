@@ -364,7 +364,7 @@ The features given by the wrinkle and fold distortions can be mimicked by overla
 With Augraphy, we expected that we could use the BadPhotoCopy augmentation to produce the dark regions and a combination of the strikethrough behavior from the Markup augmentation and the smooth curve shading behavior of the PencilScribbles augmentation to add the last feature to the ground-truth data.
 The PaperFactory augmentation makes the paper texture overlay trivial and repeatable. In the end, we executed the following pipeline:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=Python, label={lst:test-pipeline}, caption={Pipeline used for test data generation.}]
 ink_phase = []
 paper_phase = [PaperFactory(p=0.5)]
 post_phase = [
@@ -372,7 +372,6 @@ post_phase = [
   PencilScribbles(p=0.5),
   Markup(markup_color=(0,0,0), p=0.5)
 ]
-
 AugraphyPipeline(ink_phase, paper_phase, post_phase)
 \end{lstlisting}
 
