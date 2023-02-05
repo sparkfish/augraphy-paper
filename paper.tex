@@ -15,6 +15,8 @@
 \usepackage{times}
 \renewcommand{\floatpagefraction}{.8}
 \usepackage{etoolbox}
+\usepackage{multirow}
+\usepackage{tabularx}
 \AtBeginEnvironment{quote}{\par\singlespacing\small}
 
 % Spacing around floats
@@ -97,16 +99,26 @@ Other intermediate-level tasks like optical character recognition (OCR) and page
 The lower-level task of document denoising tackles the document noise problem directly, by attempting to remove noise from a document image \cite{ref_noisyoffice,blind-denoising-iccv-2021,kulkarni-2020,patch-based-document-denoising,Mustafa_2018-wan}.
 All of these tasks benefit from copious amounts of training data, and one way of generating large amounts of training data with noise-like artefacts is to use data augmentation.
 
+
+
+
+
 \begin{figure}
     \centering
-    
-    \resizebox{\textwidth}{!}{
-    \includegraphics{figures/archetype-memo.pdf}}
-    
+
+    \begin{tabularx}{\linewidth}{*{3}{>{\centering\arraybackslash}X}}
+        Noisy Original & Clean Reproduction & Augraphy Reproduction \\
+        \multicolumn{3}{c}{
+            \resizebox{\textwidth}{!}{
+                \includegraphics{figures/archetype-memo.pdf}}}      \\
+        (a) & (b) & (c) \\
+    \end{tabularx}
+
     \caption{\emph{Augraphy} can be used to introduce noisy perturbations to document images like the noise seen in (a), which is a real-life sample from  RVL-CDIP. We re-created a clean version of (a) in (b). We then create a noisy version of (b) by applying several augmentations to it to produce (c).}
 
     \label{fig:intro}
 \end{figure}
+
 
 For this reason we introduce \emph{Augraphy}, an open-source Python-based data augmentation library for generating versions of document images that contain realistic noise artefacts commonly introduced via scanning, photocopying, and other office procedures.
 \emph{Augraphy} differs from most image data augmentation tools by specifically targeting the types of alterations and degradations seen in document images.
