@@ -458,42 +458,15 @@ We use Augraphy to add noise to an image of text with known groundtruth. The Tes
 
 %% In Table 3 \ref{tab:levenshtein}, it can be seen that Augraphy introduces features which confound the Tesseract pre-trained OCR model.
 
-\section{Future Work}
-This section describes new directions for research and development.
+\section{Conclusion and Future Work}
+We presented Augraphy, a framework for generating realistic synthetically-augmented datasets of document images.
+Other available image augmentation tools were examined and found to lack features needed for our purposes, motivating the creation of this library specifically targeting the types of alterations and degradations seen in document images.
 
-\subsection{Tuning the Pipeline}
-The pipeline used to generate training data for the Augraphy model was extremely naive, and only contained four augmentations, most with default parameters, demonstrating Augraphy's high degree of both utility and ease-of-use.
-However, much of the data used in training contained an excessive amount of added noise, making the image unreadable to the human eye, and too noisy to recover text features from.
-Producing the most accurate model with Augraphy requires careful fine-tuning of the augmentation input parameters to generate training images closer to the validation set.
+We also described the process for creating new document image datasets that contain synthetic real-world noise using Augraphy, then compared results obtained by training a convolutional U-Net and a NAFNet on these datasets.
 
-\subsection{Additional Techniques}
-For brevity, this article only includes experimental results for one type of model.
-We plan to evaluate denoisers built with other architectures, particularly transformers, diffusion and generative adversarial networks, and ensembles of these.
-During the validation task, the naive Augraphy model correctly removed the page fold and wrinkle noise, but visually degraded regions of the foreground text.
-By comparison, the NoisyOffice model left more of the text intact, but permitted more of the stain features to remain in the output.
-Better results may be achieved by a sequential model built from an Augraphy-trained denoiser followed by an inpainting model to repair the text.
+Future work on the Augraphy library will focus on adding new types of augmentations, increasing performance to enable faster creation of larger datasets on more common hardware, providing more scale-invariant support so that augmentations perform well at all document image resolutions and responding to community-initiated feature requests.
 
-\subsection{An Augraphy Dataset}
-Privacy and security concerns typically preclude the assembly of large sets of modern document images: most documents are not intended for general viewing.
-The authors have searched frequently, for over a year, and have been unable to find decently-sized (>10 images) sets of modern document images, besides the NoisyOffice set.
-We intend to release an Augraphy-generated dataset in the coming months.
-
-\subsection{Augraphy Enhancements}
-Several upgrades to the Augraphy library itself are also planned:
-
-%\subsubsection{Scaling}
-\smallskip\noindent\textbf{Scaling.} ~While much work has gone into tuning Augraphy's defaults, and we feel that the effects produced are quite realistic, none of the augmentations were designed to be scale-invariant, and so we plan to introduce pre-trained networks into the library to generate effects in the future.
-
-%\subsubsection{Performance}
-\smallskip\noindent\textbf{Performance.} ~The authors typically run substantial Augraphy jobs on enthusiast or datacenter hardware.
-Performance enhancements to the library are already underway, which will decrease pipeline execution time dramatically, enabling faster creation of larger datasets on more common hardware.
-
-\section{Conclusion}
-We presented Augraphy, an augmentation framework for generating realistic datasets of modern document images.
-Two other players in the same space were examined and found lacking for our purposes, motivating the creation of this library.
-We described creating an Augraphy-noised version of the NoisyOffice dataset, then compared some preliminary results obtained by training a convolutional U-Net and a NAFNet on these datasets.
-Finally, we discussed some future directions for research, and the continued evolution of this tool.
-Augraphy is licensed under the MIT open source license, and readers are invited to participate in its development on GitHub.
+Augraphy is licensed under the MIT open source license, and readers are invited to share feedback and participate in its development on GitHub.
 
 
 %
