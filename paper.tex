@@ -97,9 +97,13 @@ The lower-level task of document de-noising tackles the document noise problem d
 All of these tasks benefit from copious amounts of training data, and one way of generating large amounts of training data with noise-like artefacts is to use data augmentation.
 
 \begin{figure}
-    \centering\scalebox{0.475}{
+    \centering
+    
+    \resizebox{\textwidth}{!}{
     \includegraphics{figures/archetype-memo.pdf}}
+    
     \caption{\emph{Augraphy} can be used to introduce noisy perturbations to document images like the noise seen in (a), which is a real-life sample from  RVL-CDIP. We re-created a clean version of (a) in (b). We then create a noisy version of (b) by applying several augmentations to it to produce (c).}
+
     \label{fig:intro}
 \end{figure}
 
@@ -112,11 +116,11 @@ This paper provides an overview of the \emph{Augraphy} library, and demonstrates
 \begin{table}[]
     \centering
     \caption{Comparison of various image-based data augmentation libraries. Number of augmentations is a rough count, and many augmentations in other tools are what Augraphy calls Utilities. Further, many single augmentations in Augraphy --- geometric transforms, for example --- are represented by multiple classes in other libraries.}
-    \scalebox{0.9}{
+    \resizebox{0.9\textwidth}{!}{
     \begin{tabular}{lccccc}
     \toprule
-        \textbf{Library} & \textbf{Num.} & \textbf{Document-} & \textbf{Pipeline-} & & \\
-        \textbf{Name} & \textbf{Augmentations} & \textbf{Centric} & \textbf{Based} & \textbf{Python} & \textbf{License}  \\
+         & \textbf{Number of} & \textbf{Document} & \textbf{Pipeline} & & \\
+        \textbf{Library} & \textbf{Augmentations} & \textbf{Centric} & \textbf{Based} & \textbf{Python} & \textbf{License}  \\
     \midrule
         \emph{Augmentor} \cite{augmentor} & 27 & \xmark &  & \cmark & MIT \\
         \emph{Albumentations} \cite{ref_albumentations} & 216 & \xmark & \cmark & \cmark & MIT \\
@@ -234,7 +238,7 @@ Descriptions of each augmentation are available online, along with the motivatio
 \begin{table}[]
     \centering
     \caption{Individual \emph{Augraphy} augmentations for each augmentation phase, in suggested position within the pipeline. Augmentations that work well in more than one phase are listed in the last column.}
-    \scalebox{0.81}{
+    \resizebox{0.9\textwidth}{!}{
     \begin{tabular}{llll}
     \toprule
         \textbf{Ink Phase} & \textbf{Paper Phase} & \textbf{Post Phase} & \textbf{Multiple} \\
