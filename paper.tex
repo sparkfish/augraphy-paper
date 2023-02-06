@@ -435,6 +435,9 @@ The training metrics collected indicate that the Augraphy model has lower varian
 \section{Robustness Testing}
 We use Augraphy to add noise to an image of text with known groundtruth. The Tesseract \cite{ref_tesseract} pre-trained OCR model's performance on the clean image is compared to the OCR result on the Augraphy-noised image, then to the true groundtruth string, using the Levenshtein distance. These measures are averaged over 1000 trials, with different Augraphy effects, to give some indication of Augraphy's effect on producing human-readable document images for challenging OCR tasks.
 
+We use the widely-used open-source Tesseract 2 engine and first compiled 15 ground-truth, noise-free document images from a new corpus of born-digital documents, whose ground-truth strings are known. We then used Tesseract to generate OCR predictions on these noise-free documents, as a baseline for comparison. We considered these OCR predictions as the ground-truth labels for each document. Next, we generated noisy versions of the 15 documents by running them through an Augraphy pipeline, and again used Tesseract to generate OCR predictions on these noisy documents. We compared the word accuracy rate on the noisy OCR results versus the ground-truth noise-free OCR results, and found that the noisy OCR results were on average 52\% less accurate, with a range of up to 84\%. This example use-case demonstrates the effectiveness of using Augraphy to create challenging test data for evaluating OCR systems.
+
+
 %% [TODO: render this]
 %% \begin{figure}
 %% \includegraphics[width=\textwidth]{figures/augmentation-matrix.png}
