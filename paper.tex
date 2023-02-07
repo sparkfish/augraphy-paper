@@ -124,6 +124,9 @@ For this reason we introduce \emph{Augraphy}, an open-source Python-based data a
 \emph{Augraphy} differs from most image data augmentation tools by specifically targeting the types of alterations and degradations seen in document images.
 \emph{Augraphy} offers \numAugraphyAugmentations ~individual augmentation methods out-of-the-box across three ``phases" of augmentations, and these individual phase augmentations can be composed together along with a ``paper factory" step where different paper backgrounds can be added to the augmented image.
 The resulting document images are realistic, noisy versions of clean documents, as evidenced in Figure~\ref{fig:intro}, where we apply several \emph{Augraphy} augmentations to a clean document image in order to mimic the types of noise seen in a real-world noisy document image from RVL-CDIP.
+
+\emph{Augraphy} has been used in several research efforts: Larson et al. (2022) \cite{larson-2022-rvlcdip-ood} used \emph{Augraphy} to mimic scanner-like noise for evaluating document classifiers trained on RVL-CDIP; Jadhav et al 2022 \cite{jadhav2022pix2pix} used \emph{Augraphy} for generating noisy document images for training a GAN for document deniosing; and Kim et al. 2022 \cite{webvicob-2022-naver} used \emph{Augraphy} as part of a document generation pipeline for document understanding tasks.
+
 This paper provides an overview of the \emph{Augraphy} library, and demonstrates how it can be used both as a training data augmentation tool and as an effective means for producing data for robustness testing.
 
 \begin{table}[]
