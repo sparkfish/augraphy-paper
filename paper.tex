@@ -17,6 +17,7 @@
 \usepackage{etoolbox}
 \usepackage{multirow}
 \usepackage{tabularx}
+\usepackage{wrapfig}
 \AtBeginEnvironment{quote}{\par\singlespacing\small}
 
 % Spacing around floats
@@ -109,7 +110,7 @@ All of these tasks benefit from copious amounts of training data, and one way of
         \multicolumn{3}{c}{
             \resizebox{\textwidth}{!}{
                 \includegraphics{figures/archetype-memo.pdf}}}      \\
-        (a) & (b) & (c) \\
+        %(a) & (b) & (c) \\
     \end{tabularx}
 
     \caption{\emph{Augraphy} can be used to introduce noisy perturbations to document images like the noise seen in (a), which is a real-life sample from  RVL-CDIP. We re-created a clean version of (a) in (b). We then create a noisy version of (b) by applying several augmentations to it to produce (c).}
@@ -136,10 +137,10 @@ This paper provides an overview of the \emph{Augraphy} library, and demonstrates
          & \textbf{Number of} & \textbf{Document} & \textbf{Pipeline} & & \\
         \textbf{Library} & \textbf{Augmentations} & \textbf{Centric} & \textbf{Based} & \textbf{Python} & \textbf{License}  \\
     \midrule
-        \emph{Augmentor} \cite{augmentor} & 27 & \xmark &  & \cmark & MIT \\
+        \emph{Augmentor} \cite{augmentor} & 27 & \xmark & \cmark  & \cmark & MIT \\
         \emph{Albumentations} \cite{ref_albumentations} & 216 & \xmark & \cmark & \cmark & MIT \\
         \emph{imgaug} \cite{ref_imgaug} & 168 & \xmark & \cmark & \cmark & MIT \\
-        \emph{Augly} \cite{Papakipos2022-gq-augly} & 34 & \xmark & & \cmark & MIT \\
+        \emph{Augly} \cite{Papakipos2022-gq-augly} & 34 & \xmark & \cmark & \cmark & MIT \\
         \emph{DocCreator} \cite{ref_DocCreator} & 12 & \cmark & \xmark & \xmark & LGPL-3.0 \\
         \emph{Augraphy} (ours) & \numAugraphyAugmentations & \cmark & \cmark & \cmark & MIT\\
     \bottomrule
