@@ -409,6 +409,44 @@ We use Augraphy to add noise to an image of text with known groundtruth. The Tes
 
 We first compiled 15 ground-truth, noise-free document images from a new corpus of born-digital documents, whose ground-truth strings are known. We then used Tesseract to generate OCR predictions on these noise-free documents, as a baseline for comparison. We considered these OCR predictions as the ground-truth labels for each document. Next, we generated noisy versions of the 15 documents by running them through an Augraphy pipeline, and again used Tesseract to generate OCR predictions on these noisy documents. We compared the word accuracy rate on the noisy OCR results versus the ground-truth noise-free OCR results, and found that the noisy OCR results were on average 52\% less accurate, with a range of up to 84\%. This example use-case demonstrates the effectiveness of using Augraphy to create challenging test data for evaluating OCR systems.
 
+\subsection{Face Detection Robustness Testing}
+In this section, we use \emph{Augraphy} to investigate the robustness of object detection models on images that have been altered by \emph{Augraphy}.
+Specifically, we explore using \emph{Augraphy} to add noise to images containing faces in order to test the robustness of face detection models.
+In this way, we move beyond analyzing robustness of text-related tasks, but the images we analyze in this section can nonetheless appear in documents like newspapers \cite{newspaper-navigator} and identification documents \cite{midv-500}, which are often scanned from the physical world by noisy scanners.
+Hence, it is important for image-focused models like image classifiers and object detection models to be robust to scanner-induced noise.
+
+\begin{wraptable}{r}{5cm}
+    \centering
+    \caption{Face detection performance.}
+    \begin{tabular}{lr}
+    \toprule
+        \textbf{Model} & \textbf{Accuracy} \\
+        \midrule
+        Azure & 57.1\%\\
+        Google & 60.1\%  \\
+        Amazon & 49.1\% \\
+        UltraFace & 4.5\%\\
+        \bottomrule
+    \end{tabular}
+    \label{tab:face-detection-results}
+\end{wraptable}
+
+We begin by sampling 75 images from the FDDB face detection benchmark \cite{fddbTech}.
+Then, we use \emph{Augraphy} to generate 10 altered versions of each image and manually remove any augmented image where the face(s) is not reasonably visible.
+We then test four face detection models on the noisy and noise-free images.
+These models are: proprietary face detection models from Google,\footnote{\url{https://cloud.google.com/vision/docs/detecting-faces}} Amazon,\footnote{\url{https://aws.amazon.com/rekognition/}} and Microsoft\footnote{\url{https://azure.microsoft.com/en-us/services/cognitive-services/face}}, and lastly the freely-available UltraFace\footnote{\url{https://github.com/onnx/models/tree/main/vision/body_analysis/ultraface}} model.
+%We then test Microsoft Azure's face detection model on the noise-free and noisy images.
+
+Table~\ref{tab:face-detection-results} shows face detection accuracy of both models on the noisy test set, and example images where no faces were detected by the Microsoft model are shown in Figure \ref{fig:face-detection-mistakes}.
+We see that all four models struggle on the \emph{Augraphy}-augmented data, with the proprietary models seeing detection performances drop to between roughly 50-60\%, and UltraFace detecting only 4.5\% of faces that it found in the noise-free data.
+
+\begin{figure}
+    \centering\scalebox{0.47}{
+    \includegraphics{figures/azure_1x3_face_errors.pdf}}
+    \caption{Example augmented images that yielded false-positive predictions with the Azure face detector.}
+    \label{fig:face-detection-mistakes}
+\end{figure}
+
 
 %% [TODO: render this]
 %% \begin{figure}
