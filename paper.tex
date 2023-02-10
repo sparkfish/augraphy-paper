@@ -356,15 +356,15 @@ To evaluate \emph{Augraphy}, we trained two simple models: the first was a UNet 
 \subsection{Data Generation}
 Despite recent techniques (\cite{ref_tvt2040}, \cite{ref_vtssds}) for reducing the volume of input data required to train models, data remains king; feeding a model more data during training can help ensure better latent representations of more features, improving robustness of the model and increasing its capacity for generalization to new data.
 
-To train our model, we developed the ShabbyPages dataset \cite{ref_ShabbyPages}, a real-world document image corpus with \emph{Augraphy}-generated synthetic noise.
-Gathering the 600 ground-truth documents was the most challenging part, requiring the efforts of several workers across multiple days. Adding the noise to these images was trivial however; \emph{Augraphy} makes it easy to produce large training sets.
+To train our model, we developed the \emph{ShabbyPages} dataset \cite{ref_ShabbyPages}, a real-world document image corpus with \emph{Augraphy}-generated synthetic noise.
+Gathering the 600 ground-truth documents was the most challenging part, requiring the efforts of several crowdworkers across multiple days. Adding the noise to these images was trivial however; \emph{Augraphy} makes it easy to produce large training sets.
 For additional realistic variation, we also gathered 300 paper textures and used the PaperFactory augmentation to ``print'' our source documents onto these.
 
 The initial 600 PDF documents were split into their component pages, totaling 6202 clean document images exported at 150 pixels per inch.
 We iteratively developed an \emph{Augraphy} pipeline which produced satisfactory output with few overly-noised images, then ran each of the clean images through this to produce the base training set.
 Patches were taken from each of these images and used for the final training collection.
 
-Another new dataset --- ShabbyReal --- was produced as part of the larger ShabbyPages corpus \cite{ref_ShabbyPages}; this data was manually produced by applying sequences of physical operations to real paper.  ShabbyReal is fully out-of-distribution for the models in our experiments, and also has a very high degree of diversity, providing good conditions for evaluating \emph{Augraphy}'s effect.
+Another new dataset --- \emph{ShabbyReal} --- was produced as part of the larger \emph{ShabbyPages} corpus \cite{ref_ShabbyPages}; this data was manually produced by applying sequences of physical operations to real paper.  \emph{ShabbyReal} is fully out-of-distribution for the models in our experiments, and also has a very high degree of diversity, providing good conditions for evaluating \emph{Augraphy}'s effect.
 
 \subsection{Training Regime}
 Training of the UNet model proceeded for 600 epochs, learning features from 1050 patches of 500x500 pixels.
@@ -391,7 +391,7 @@ To compare the models' performance on the validation task, we considered the fol
 
 \begin{table}
 \centering
-\caption{Model training statistics and performance on ShabbyReal validation task}\label{tab1}
+\caption{Model training statistics and performance on \emph{ShabbyReal} validation task}\label{tab1}
 \begin{tabular}{|@{\hspace{2em}}l@{\qquad}|@{\hspace{2em}}l@{\qquad}|@{\hspace{2em}}l@{\qquad}|@{\hspace{2em}}l@{\qquad}|}
 \hline
 Metric & PSNR & SSIM & RMSE\\
@@ -407,7 +407,7 @@ Augraphy\_NAFNet_large & & &
 \section{Robustness Testing}
 We use \emph{Augraphy} to add noise to an image of text with known groundtruth. The Tesseract \cite{ref_tesseract} pre-trained OCR model's performance on the clean image is compared to the OCR result on the \emph{Augraphy}-noised image, then to the true groundtruth string, using the Levenshtein distance. These measures are averaged over 1000 trials, with different \emph{Augraphy} effects, to give some indication of \emph{Augraphy}'s effect on producing human-readable document images for challenging OCR tasks.
 
-We first compiled 15 ground-truth, noise-free document images from a new corpus of born-digital documents, whose ground-truth strings are known. We then used Tesseract to generate OCR predictions on these noise-free documents, as a baseline for comparison. We considered these OCR predictions as the ground-truth labels for each document. Next, we generated noisy versions of the 15 documents by running them through an \emph{Augraphy} pipeline, and again used Tesseract to generate OCR predictions on these noisy documents. We compared the word accuracy rate on the noisy OCR results versus the ground-truth noise-free OCR results, and found that the noisy OCR results were on average 52\% less accurate, with a range of up to 84\%. This example use-case demonstrates the effectiveness of using \emph{Augraphy} to create challenging test data for evaluating OCR systems.
+We first compiled 15 ground-truth, noise-free document images from a new corpus of born-digital documents, whose ground-truth strings are known. We then used Tesseract to generate OCR predictions on these noise-free documents, as a baseline for comparison. We considered these OCR predictions as the ground-truth labels for each document. Next, we generated noisy versions of the 15 documents by running them through an \emph{Augraphy} pipeline, and again used Tesseract to generate OCR predictions on these noisy documents. We compared the word accuracy rate on the noisy OCR results versus the ground-truth noise-free OCR results, and found that the noisy OCR results were on average 52\% less accurate, with a range of up to 84\%. This example use-case demonstrates the effectiveness of using \emph{Augraphy} to create challenging test data that remains human readable suitable for evaluating OCR systems.
 
 \subsection{Face Detection Robustness Testing}
 In this section, we use \emph{Augraphy} to investigate the robustness of object detection models on images that have been altered by \emph{Augraphy}.
