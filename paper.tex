@@ -40,21 +40,21 @@
 \definecolor{superlightgray}{RGB}{242,242,242}
 
 \lstdefinestyle{mystyle}{
-    backgroundcolor=\color{backcolour},   
+    backgroundcolor=\color{backcolour},
     commentstyle=\color{codegreen},
     keywordstyle=\color{magenta},
     numberstyle=\tiny\color{codegray},
     stringstyle=\color{codepurple},
     basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,         
-    breaklines=true,                 
-    captionpos=b,                    
-    keepspaces=true,                 
-    numbers=left,                    
-    numbersep=5pt,                  
-    showspaces=false,                
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
     showstringspaces=false,
-    showtabs=false,                  
+    showtabs=false,
     tabsize=2
 }
 \lstset{style=mystyle}
@@ -312,7 +312,7 @@ Others, like a coffee spill, change properties of the paper itself. Further stil
 Effectively capturing processes like these in reproducible augmentations means separating our model of a document pipeline into ink, paper, and post-processing layers, each containing some augmentations that modify the document image as it passes through.
 Producing realistically noisy document images can now be reduced to the definition and application of one or more \emph{Augraphy} pipelines to some clean, born-digital document images.
 
-The value added by the \texttt{AugraphyPipeline} class over a bare list of functions applied in sequence to an image is principally in the collection of runtime metadata; the output of an \texttt{AugraphyPipeline} application is a Python dictionary which contains not only the final image, but copies of every intermediate image, as well as information about the object constructors and their parameters that were used for each augmentation. 
+The value added by the \texttt{AugraphyPipeline} class over a bare list of functions applied in sequence to an image is principally in the collection of runtime metadata; the output of an \texttt{AugraphyPipeline} application is a Python dictionary which contains not only the final image, but copies of every intermediate image, as well as information about the object constructors and their parameters that were used for each augmentation.
  This pipeline metadata allows for easy inspection and fine-tuning of the pipeline definition to achieve outputs with desired features, facilitating (re)production of documents as in Figure \ref{fig:intro}.
 
 \sectionfont{\keepall}
