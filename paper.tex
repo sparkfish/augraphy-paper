@@ -177,13 +177,11 @@ Many approaches exist for adding features to an image, and many types of feature
 
 These types of feature are certainly useful in general image analysis and understanding, but bear little relation to the types of features commonly found in real-world documents.
 
-A sheet of paper out in the world begins its life as wood pulp, bleached, drained, and pressed flat by a long series of rollers. These are cut to size and stacked, then bound in reams and sent out for sale and use. This is the last time the sheet is clean in its useful lifetime, and even at this point, manufacturing defects can lead to variations in the paper, even between two pages in the same ream. At the point of use, these pages are loaded into a printer where they are stamped or dusted in toner and burned with lasers or sprayed with ink. Any of these processes may alter the local texture or global topology of the sheet. The pages may receive handwritten marks at any point before or after printing, and may subsequently be folded, creased, crumpled, flattened, burned, stained, soaked, or generally be subject to any of a million other operations. Any secretary can describe hundreds of different document distortion features; any schoolteacher, thousands.
-
-\emph{Augraphy}'s suite of augmentations was designed to faithfully reproduce this level of complexity in the document lifecycle. Every feature just listed already has a direct implementation either within the library or on the development roadmap, with many more planned.
+\emph{Augraphy}'s suite of augmentations was designed to faithfully reproduce the level of complexity in the document lifecycle at seen in the real world.  Such real-world conditions and  features have direct implementations either within the library or on the development roadmap.
 
 Some techniques exist for introducing these features into images of documents, including but not limited to the following:
 \begin{enumerate}
-\item Text can be generated independently of the paper texture, and can be overlaid onto the "paper" by a number of blending functions, allowing a variety of paper textures to be used.
+\item Text can be generated independently of the paper texture, and can be overlaid onto the ``paper'' by a number of blending functions, allowing a variety of paper textures to be used.
 \item Similarly, any markup features may be generated and overlaid by the same methods.
 \item Documents can be digitized with a commercial scanner, or converted to a continuous analog signal and back with a fax machine.
 \item The finished document image can be used as a texture and attached to a 3D mesh, then projected back to 2 dimensions to simulate physical deformation. DocCreator's 3D mesh support here is excellent and has inspired \emph{Augraphy} to add similar functionality in its roadmap.  In the meantime, \emph{Augraphy} currently offers support for paper folds.
@@ -402,9 +400,6 @@ As can be seen in Figure \ref{fig:shabbyreal_denoised}, the model was able to re
 
 \section{Robustness Testing}
 In this section, we examine the use of \emph{Augraphy} to add noise which challenges existing models.
-
-One of \emph{Augraphy}'s \emph{raisons d'être} is denoising identity documents like driver's licenses, passports, and immigration forms; images of these documents are often generated in high-traffic environments like emergency rooms or border checkpoints, where the image capture hardware is frequently dirty or malfunctioning, producing noisy outputs.
-Accurately capturing information is extremely important in these settings for human health and security, necessitating robust denoising and object detection models.
 
 We first use \emph{Augraphy} to add noise to an image of text with known groundtruth.
 The Tesseract \cite{ref_tesseract} pre-trained OCR model's performance on the clean image is compared to the OCR result on the \emph{Augraphy}-noised image using the Levenshtein distance.
