@@ -376,10 +376,10 @@ To compare the model's performance on the validation task, we considered the roo
 \begin{table}
 \centering
 \caption{Denoising performance on \emph{ShabbyReal} validation task}\label{tab1}
-\begin{tabular}{|@{\hspace{2em}}l@{\qquad}|@{\hspace{2em}}l@{\qquad}|}
-\hline
-Metric & Score \\
-\hline
+\begin{tabular}{@{\hspace{2em}}l@{\qquad}@{\hspace{2em}}l@{\qquad}}
+\toprule
+\textbf{Metric} & \textbf{Score} \\
+\midrule
 SSIM & 0.71\\
 PSNR & 32.52\\
 RMSE & 6.52\\
@@ -422,12 +422,7 @@ We first compiled 15 ground-truth, noise-free document images from a new corpus 
 \end{figure}
 
 \subsection{Face Detection Robustness Testing}
-In this section, we use \emph{Augraphy} to investigate the robustness of object detection models on images that have been altered by \emph{Augraphy}.
-Specifically, we explore using \emph{Augraphy} to add noise to images containing faces in order to test the robustness of face detection models.
-In this way, we move beyond analyzing robustness of text-related tasks, but the images we analyze in this section can nonetheless appear in documents like newspapers \cite{newspaper-navigator} and identification documents \cite{midv-500}, which are often scanned from the physical world by noisy scanners.
-Hence, it is important for image-focused models like image classifiers and object detection models to be robust to scanner-induced noise.
-
-\begin{wraptable}{r}{5cm}
+\begin{wraptable}{r}{6cm}
     \centering
     \caption{Face detection performance.}
     \begin{tabular}{lr}
@@ -442,6 +437,12 @@ Hence, it is important for image-focused models like image classifiers and objec
     \end{tabular}
     \label{tab:face-detection-results}
 \end{wraptable}
+In this section, we use \emph{Augraphy} to investigate the robustness of object detection models on images that have been altered by \emph{Augraphy}.
+Specifically, we explore using \emph{Augraphy} to add noise to images containing faces in order to test the robustness of face detection models.
+In this way, we move beyond analyzing robustness of text-related tasks, but the images we analyze in this section can nonetheless appear in documents like newspapers \cite{newspaper-navigator} and identification documents \cite{midv-500}, which are often scanned from the physical world by noisy scanners.
+Hence, it is important for image-focused models like image classifiers and object detection models to be robust to scanner-induced noise.
+
+
 
 We begin by sampling 75 images from the FDDB face detection benchmark \cite{fddbTech}.
 Then, we use \emph{Augraphy} to generate 10 altered versions of each image and manually remove any augmented image where the face(s) is not reasonably visible.
