@@ -442,8 +442,6 @@ Specifically, we explore using \emph{Augraphy} to add noise to images containing
 In this way, we move beyond analyzing robustness of text-related tasks, but the images we analyze in this section can nonetheless appear in documents like newspapers \cite{newspaper-navigator} and identification documents \cite{midv-500}, which are often scanned from the physical world by noisy scanners.
 Hence, it is important for image-focused models like image classifiers and object detection models to be robust to scanner-induced noise.
 
-
-
 We begin by sampling 75 images from the FDDB face detection benchmark \cite{fddbTech}.
 Then, we use \emph{Augraphy} to generate 10 altered versions of each image and manually remove any augmented image where the face(s) is not reasonably visible.
 We then test four face detection models on the noisy and noise-free images.
@@ -459,7 +457,6 @@ We see that all four models struggle on the \emph{Augraphy}-augmented data, with
     \caption{Example augmented images that yielded false-positive predictions with the Azure face detector.}
     \label{fig:face-detection-mistakes}
 \end{figure}
-
 
 \section{Conclusion and Future Work}
 We presented \emph{Augraphy}, a framework for generating realistic synthetically-augmented datasets of document images.
