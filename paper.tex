@@ -61,8 +61,6 @@
 
 \newcommand{\numAugraphyAugmentations}{\emph{26}}
 \newcommand{\numNoisyOfficeUNetEpochs}{\emph{426}}
-\newcommand{\ocrCleanLevenshteinDistance}{\emph{TODO}}
-\newcommand{\ocrAugraphyAverageLevenshteinDistance}{\emph{TODO}}
 
 %
 \begin{document}
@@ -405,9 +403,25 @@ RMSE & \\
 
 [TODO: add numbers and interpretation]
 \section{Robustness Testing}
-We use \emph{Augraphy} to add noise to an image of text with known groundtruth. The Tesseract \cite{ref_tesseract} pre-trained OCR model's performance on the clean image is compared to the OCR result on the \emph{Augraphy}-noised image, then to the true groundtruth string, using the Levenshtein distance. These measures are averaged over 1000 trials, with different \emph{Augraphy} effects, to give some indication of \emph{Augraphy}'s effect on producing human-readable document images for challenging OCR tasks.
+In this section, we examine the use of \emph{Augraphy} to add noise which challenges existing models.
 
+One of \emph{Augraphy}'s \emph{raisons d'être} is denoising identity documents like driver's licenses, passports, and immigration forms; images of these documents are often generated in high-traffic environments like emergency rooms or border checkpoints, where the image capture hardware is frequently dirty or malfunctioning, producing noisy outputs.
+Accurately capturing information is extremely important in these settings for human health and security, necessitating robust denoising and object detection models.
+
+We first use \emph{Augraphy} to add noise to an image of text with known groundtruth.
+The Tesseract \cite{ref_tesseract} pre-trained OCR model's performance on the clean image is compared to the OCR result on the \emph{Augraphy}-noised image using the Levenshtein distance.
+
+Then, we add \emph{Augraphy}-generated noise to document images which contain pictures of people, and perform face-detection on the output, comparing the detection accuracy to that of the clean images.
+
+\subsection{Character Recognition}
 We first compiled 15 ground-truth, noise-free document images from a new corpus of born-digital documents, whose ground-truth strings are known. We then used Tesseract to generate OCR predictions on these noise-free documents, as a baseline for comparison. We considered these OCR predictions as the ground-truth labels for each document. Next, we generated noisy versions of the 15 documents by running them through an \emph{Augraphy} pipeline, and again used Tesseract to generate OCR predictions on these noisy documents. We compared the word accuracy rate on the noisy OCR results versus the ground-truth noise-free OCR results, and found that the noisy OCR results were on average 52\% less accurate, with a range of up to 84\%. This example use-case demonstrates the effectiveness of using \emph{Augraphy} to create challenging test data that remains human readable suitable for evaluating OCR systems.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.98\columnwidth, frame]{figures/ocr_figure.png}
+\caption{Sample \emph{ShabbyReal} clean/noisy image pair, and the OCR output for each. The computed Levenshtein distance between the OCR result strings is 203.}
+\label{fig:ocr_output}
+\end{figure}
 
 \subsection{Face Detection Robustness Testing}
 In this section, we use \emph{Augraphy} to investigate the robustness of object detection models on images that have been altered by \emph{Augraphy}.
@@ -447,29 +461,6 @@ We see that all four models struggle on the \emph{Augraphy}-augmented data, with
     \label{fig:face-detection-mistakes}
 \end{figure}
 
-
-%% [TODO: render this]
-%% \begin{figure}
-%% \includegraphics[width=\textwidth]{figures/augmentation-matrix.png}
-%% \caption{Groundtruth image (left), sample of \emph{Augraphy} output (right).} \label{fig5}
-%% \end{figure}
-
-%% [TODO: get results]
-%% \begin{table}[]
-%%     \centering
-%%     \caption{Measuring \emph{Augraphy}'s effect on OCR model performance.}
-%%     \scalebox{0.81}{
-%%     \begin{tabular}{lll}
-%%     \toprule
-%%     \textbf{Groundtruth String} & \textbf{OCR output on clean image \\ distance to true string} & \textbf{Average OCR output on \emph{Augraphy}-noised images \\ distance to true string} \\
-%%     \midrule
-%%     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." & \ocrCleanLevenshteinDistance & \ocrAugraphyAverageLevenshteinDistance
-%%     \bottomrule
-%%     \end{tabular}}
-%%     \label{tab:levenshtein}
-%% \end{table}
-
-%% In Table 3 \ref{tab:levenshtein}, it can be seen that \emph{Augraphy} introduces features which confound the Tesseract pre-trained OCR model.
 
 \section{Conclusion and Future Work}
 We presented \emph{Augraphy}, a framework for generating realistic synthetically-augmented datasets of document images.
