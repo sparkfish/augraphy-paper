@@ -335,7 +335,10 @@ Interoperability and flexibility are core requirements of any data augmentation 
 \noindent\textbf{\texttt{Foreign}.} ~This class can be used to wrap augmentations from external projects like \emph{Albumentations} and \emph{imgaug}.
 
 \smallskip
-\noindent\textbf{\texttt{ImageOverlay}.} ~This class uses various blending algorithms to fuse foreground and background images together, which is useful for ``printing" or applying other artifacts like staples or stamps.
+\noindent\textbf{\texttt{OverlayBuilder}.} ~This class uses various blending algorithms to fuse foreground and background images together, which is useful for ``printing" or applying other artifacts like staples or stamps.
+
+\smallskip
+\noindent\textbf{\texttt{NoiseGenerator}.} ~This class uses make blobs algorithm to generate mask of noises in different shape and location.
 
 \begin{figure}
 \includegraphics[width=\textwidth]{figures/augmentation-matrix.png}
