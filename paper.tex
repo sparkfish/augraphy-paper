@@ -347,15 +347,15 @@ Interoperability and flexibility are core requirements of any data augmentation 
 
 \section{Deep Learning with \emph{Augraphy}}
 \emph{Augraphy} aims to facilitate rapid dataset creation, advancing the state of the art for document image analysis tasks.
-This section describes a brief experiment in which \emph{Augraphy} was used to augment a new collection of clean documents, producing a new corpus which fills a feature gap in existing public datasets. This corpus is used to train two denoising convolutional neural networks with different model designs, each of which makes high-accuracy predictions, demonstrating \emph{Augraphy}'s utility for robust data augmentation.
+This section describes a brief experiment in which \emph{Augraphy} was used to augment a new collection of clean documents, producing a new corpus which fills a feature gap in existing public datasets. This collection was used to train a denoising convolutional neural network capable of high-accuracy predictions, demonstrating \emph{Augraphy}'s utility for robust data augmentation.
 
 All code used in these experiments is available in the \texttt{augraphy-paper} GitHub repository \footnote{\url{https://github.com/sparkfish/augraphy-paper}}.
 
 \subsection{Model Architecture}
-To evaluate \emph{Augraphy}, we trained two simple models: the first was a UNet convolutional neural network, taken directly from a submission to the NoisyOffice Kaggle competition  \footnote{\url{https://www.kaggle.com/code/michalbrezk/denoise-images-using-autoencoders-tf-keras/notebook}}. We selected this one for its simplicity and the clarity of its exposition, and use it with few changes. The second model is an off-the-shelf Nonlinear Activation-Free Network (NAFNet), \cite{ref_nafnet}; we again made only minor changes to the model's training hyperparameters, changing the batch size and learning epoch count to fit our training data.
+To evaluate \emph{Augraphy}, we used an off-the-shelf Nonlinear Activation-Free Network (NAFNet), \cite{ref_nafnet}, making only minor alterations to the model's training hyperparameters, changing the batch size and learning epoch count to fit our training data.
 
 \subsection{Data Generation}
-Despite recent techniques (\cite{ref_tvt2040}, \cite{ref_vtssds}) for reducing the volume of input data required to train models, data remains king; feeding a model more data during training can help ensure better latent representations of more features, improving robustness of the model and increasing its capacity for generalization to new data.
+Despite recent techniques (\cite{ref_tvt2040}, \cite{ref_vtssds}) for reducing the volume of input data required to train models, large datasets remain king; feeding a model more data during training can help ensure better latent representations of more features, improving robustness of the model to noise and increasing its capacity for generalization to new data.
 
 To train our model, we developed the \emph{ShabbyPages} dataset \cite{ref_ShabbyPages}, a real-world document image corpus with \emph{Augraphy}-generated synthetic noise.
 Gathering the 600 ground-truth documents was the most challenging part, requiring the efforts of several crowdworkers across multiple days. Adding the noise to these images was trivial however; \emph{Augraphy} makes it easy to produce large training sets.
@@ -365,30 +365,17 @@ The initial 600 PDF documents were split into their component pages, totaling 62
 We iteratively developed an \emph{Augraphy} pipeline which produced satisfactory output with few overly-noised images, then ran each of the clean images through this to produce the base training set.
 Patches were taken from each of these images and used for the final training collection.
 
-Another new dataset --- \emph{ShabbyReal} --- was produced as part of the larger \emph{ShabbyPages} corpus \cite{ref_ShabbyPages}; this data was manually produced by applying sequences of physical operations to real paper.  \emph{ShabbyReal} is fully out-of-distribution for the models in our experiments, and also has a very high degree of diversity, providing good conditions for evaluating \emph{Augraphy}'s effect.
+Another new dataset --- \emph{ShabbyReal} --- was produced as part of the larger \emph{ShabbyPages} corpus \cite{ref_ShabbyPages}; this data was manually produced by applying sequences of physical operations to real paper. \emph{ShabbyReal} is fully out-of-distribution for this experiment, and also has a very high degree of diversity, providing good conditions for evaluating \emph{Augraphy}'s effect.
 
 \subsection{Training Regime}
-Training of the UNet model proceeded for 600 epochs, learning features from 1050 patches of 500x500 pixels.
+The NAFNet was given a large sample to learn from: for each image in the ShabbyPages set, we sampled ten patches of 400x400 pixels, using these to train the instance across just 16 epochs.
 
-The NAFNet was given a much larger sample to learn from: 10 square patches 400 pixels to a side were used to train this instance, across just 16 epochs.
-
-Both models were trained with mean squared error as the loss function, using the Adam optimizer, and evaluated with the mean average error metric.
+The model was trained with mean squared error as the loss function, using the Adam optimizer and cosine annealing learning rate scheduler, then evaluated with the mean average error metric.
 
 \subsection{Results}
-Sample predictions from each model on the validation task are presented in Table 1. The SSIM score indicates that these models generalize very well, though they do overcompensate for shadowing features around text, by increasing the line thickness in the prediction, resulting in a bold font.
+Sample predictions from the model on the validation task are presented in Figure \cite{fig:shabbyreal_denoising}. The SSIM score indicates that these models generalize very well, though they do overcompensate for shadowing features around text, by increasing the line thickness in the prediction, resulting in a bold font.
 
-\begin{figure}\label{fig4}
-\includegraphics[width=\textwidth]{figures/sidebyside.png}
-\caption{Validation images (left), with the images predicted by the ShabbyPages_NAFNet (center) and ShabbyPages_NAFNet_large (right) models.}
-\end{figure} %[TODO: can we show this a better way?]
-
-To compare the models' performance on the validation task, we considered the following metrics:
-\begin{enumerate}
-\item Root mean square error (RMSE)
-\item Structural similarity index (SSIM)
-\item Peak signal-to-noise ratio (PSNR)
-\end{enumerate}
-
+To compare the model's performance on the validation task, we considered the root mean square error (RMSE), structural similarity index (SSIM), and peak signal-to-noise ratio (PSNR) metrics.
 
 \begin{table}
 \centering
@@ -397,14 +384,22 @@ To compare the models' performance on the validation task, we considered the fol
 \hline
 Metric & Score \\
 \hline
-SSIM & \\
-PSNR & \\
-RMSE & \\
+SSIM & 0.71\\
+PSNR & 32.52\\
+RMSE & 6.52\\
 \hline
 \end{tabular}
 \end{table}
 
-[TODO: add numbers and interpretation]
+\begin{figure}
+\centering
+\includegraphics[width=0.98\columnwidth]{figures/shabbyreal_denoised.png}
+\caption{Sample \emph{ShabbyReal} noisy images (left) and their denoised counterparts (right).}
+\label{fig:shabbyreal_denoised}
+\end{figure}
+
+As can be seen in  Figure \cite{fig:shabbyreal_denoised}, the model was able to remove a significant amount of blur, line noise, shadowing from tire tracks, and watercoloring.
+
 \section{Robustness Testing}
 In this section, we examine the use of \emph{Augraphy} to add noise which challenges existing models.
 
