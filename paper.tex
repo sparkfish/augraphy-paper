@@ -373,7 +373,7 @@ The NAFNet was given a large sample to learn from: for each image in the ShabbyP
 The model was trained with mean squared error as the loss function, using the Adam optimizer and cosine annealing learning rate scheduler, then evaluated with the mean average error metric.
 
 \subsection{Results}
-Sample predictions from the model on the validation task are presented in Figure \cite{fig:shabbyreal_denoising}. The SSIM score indicates that these models generalize very well, though they do overcompensate for shadowing features around text, by increasing the line thickness in the prediction, resulting in a bold font.
+Sample predictions from the model on the validation task are presented in Figure \ref{fig:shabbyreal_denoising}. The SSIM score indicates that these models generalize very well, though they do overcompensate for shadowing features around text, by increasing the line thickness in the prediction, resulting in a bold font.
 
 To compare the model's performance on the validation task, we considered the root mean square error (RMSE), structural similarity index (SSIM), and peak signal-to-noise ratio (PSNR) metrics.
 
@@ -398,7 +398,7 @@ RMSE & 6.52\\
 \label{fig:shabbyreal_denoised}
 \end{figure}
 
-As can be seen in  Figure \cite{fig:shabbyreal_denoised}, the model was able to remove a significant amount of blur, line noise, shadowing from tire tracks, and watercoloring.
+As can be seen in Figure \ref{fig:shabbyreal_denoised}, the model was able to remove a significant amount of blur, line noise, shadowing from tire tracks, and watercoloring.
 
 \section{Robustness Testing}
 In this section, we examine the use of \emph{Augraphy} to add noise which challenges existing models.
