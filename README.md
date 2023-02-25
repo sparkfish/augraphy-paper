@@ -16,12 +16,12 @@ _Augraphy_ provides several strategies to produce augmented versions of clean do
 
 | Library               | Number of Augmentations | Document Centric | Pipeline Based | Python | License     |
 |:---------------------:|:-----------------------:|:----------------:|:--------------:|:------:|:-----------:|
-| [Augmentor](https://github.com/mdbloice/Augmentor)        | 27                     | :x:              | :white_check_mark:  | :white_check_mark: | MIT |
-| [Albumentations](https://github.com/albumentations-team/albumentations) | 216                 | :x:              | :white_check_mark:  | :white_check_mark: | MIT |
-| [imgaug](https://github.com/aleju/imgaug)            | 168                    | :x:              | :white_check_mark:  | :white_check_mark: | MIT |
-| [Augly](https://github.com/facebo) | 34                     | :x:              | :white_check_mark:  | :white_check_mark: | MIT |
-| [DocCreator](https://github.com/DocCreator/DocCreator)   | 12                     | :white_check_mark: | :x:             | :x:     | LGPL-3.0    |
-| [Augraphy](https://github.com/sparkfish/augraphy) (ours)       | 26                 | :white_check_mark: | :white_check_mark:  | :white_check_mark: | MIT |
+| _[Augmentor](https://github.com/mdbloice/Augmentor)_        | 27                     | :x:              | :white_check_mark:  | :white_check_mark: | MIT |
+| _[Albumentations](https://github.com/albumentations-team/albumentations)_ | 216                 | :x:              | :white_check_mark:  | :white_check_mark: | MIT |
+| _[imgaug](https://github.com/aleju/imgaug)_            | 168                    | :x:              | :white_check_mark:  | :white_check_mark: | MIT |
+| _[Augly](https://github.com/facebo)_ | 34                     | :x:              | :white_check_mark:  | :white_check_mark: | MIT |
+| _[DocCreator](https://github.com/DocCreator/DocCreator)_   | 12                     | :white_check_mark: | :x:             | :x:     | LGPL-3.0    |
+| _**[Augraphy](https://github.com/sparkfish/augraphy) (ours)**_       | **26**                 | :white_check_mark: | :white_check_mark:  | :white_check_mark: | **MIT** |
 
 </div>
 
