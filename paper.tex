@@ -90,7 +90,7 @@ This paper discusses the \emph{Augraphy} tool, and shows how it can be used both
 
 The \emph{Augraphy} library is designed to produce training datasets, pairing synthetic dirty documents with their clean ground truth document image sources.  The need for such a data augmentation tool in document image analysis primarily results from the lack of ground truth images being available for most of the documents recorded within human history.  Access to the knowledge stored in such document images is thwarted by artifacts, distortion and noise.  As such, there is an ongoing need to improve available techniques to restore document images and thereby unlocking their contents for use in search or other document analysis tasks.
 
-An ongoing digital transformation has reduced everyday reliance on paper.  However, major industries such as healthcare\cite{menachemi2011benefits}, insurance\cite{gatzert2016impact}, legal\cite{staudt2015access}, financial services\cite{chuen2017handbook}, government\cite{albano2018role}, and education\cite{alkhezzi2020factors} continue to produce physical documents that are later digitally archived.
+An ongoing digital transformation has reduced everyday reliance on paper.  However, major industries such as healthcare~\cite{menachemi2011benefits}, insurance~\cite{gatzert2016impact}, legal~\cite{staudt2015access}, financial services~\cite{chuen2017handbook}, government~\cite{albano2018role}, and education~\cite{alkhezzi2020factors} continue to produce physical documents that are later digitally archived.
 
 Paper documents accumulate physical damage and alterations through printing, scanning, photocopying and daily life.  Real-world processes introduce many types of distortions that result in color changes, shadows in scanned documents, degraded text where low ink, annotations, highlighters or other markings add noise to the page that perturb semantic access by digital means.
 
@@ -148,20 +148,20 @@ Several research efforts have used \emph{Augraphy}: Larson et al. (2022) \cite{l
 
 \section{Related Work}
 
-This section discusses prior work related to data augmentation and robustness testing, especially as it relates to document understanding and processing tasks.
+This section reviews prior work on data augmentation and available tooling for robustness testing, particularly in the context of document understanding, processing, and analysis tasks.
+
+Table~\ref{tab:augmentation-library-comparison} compares \emph{Augraphy} with other image augmentation libraries and tools.  This analysis highlights that most existing data augmentation libraries do not specifically cater to the corruptions typically encountered in document image analysis datasets.  In contrast, \emph{Augraphy} is designed to be easily integrated into machine learning pipelines alongside popular Python packages used in machine learning and document analysis.  Our paper also utilizes robustness testing to demonstrate how \emph{Augraphy} can be used to evaluate a model's effectiveness in the face of challenging conditions.  Instead of general image modifications, we focus on document-specific distortions and alterations that are better suited to challenge OCR models with document images that still retain sufficient quality to remain human-readable.
 
 \subsection{Data Augmentation}
 A wide variety of data augmentation tools and pipelines exist for machine learning tasks, including  natural language processing (e.g., \cite{feng-etal-2021-survey,fadaee-etal-2017-data,wei-zou-2019-eda}), audio and speech processing (e.g., \cite{ko15_interspeech,audiogmenter,audio-framework}), and computer vision and image processing.
-In the latter realm, popular tools include \emph{Augly} \cite{Papakipos2022-gq-augly}, \emph{Augmentor} \cite{augmentor}, \emph{Albumentations} \cite{ref_albumentations}, \emph{DocCreator} \cite{ref_DocCreator}, and \emph{imgaug} \cite{ref_imgaug}.
-Augmentation strategies from these image-centric libraries are typically general-purpose, and include transformations like rotations, warps, and color modifications.
-Table~\ref{tab:augmentation-library-comparison} compares \emph{Augraphy} with other image augmentation libraries and tools.
-As can be seen, these other data augmentation libraries do not specifically provide support for imitating the corruptions commonly seen in document analysis corpora.
 
-A notable exception to this is the \emph{DocCreator} image synthesizing tool \cite{ref_DocCreator}, which is targeted towards creating synthetic images that mimic common corruptions seen in document collections.
-\emph{DocCreator} differs from \emph{Augraphy} in several crucial ways.
-The first difference is that \emph{DocCreator}'s augmentations are meant to imitate those seen in historical (e.g., ancient or medieval) documents, while \emph{Augraphy} is intended to replicate noise caused by office room procedures.
-\emph{DocCreator} was also written in the C++ programming language as a monolithic what-you-see-is-what-you-get tool, and does not have a scripting or API interface to enable use in a broader machine learning pipeline.
-\emph{Augraphy}, in contrast, is written in Python and can be easily integrated into machine learning model development and evaluation pipelines, alongside other Python packages like PyTorch \cite{ref_pytorch}.
+As it pertains to computer vision, popular tools such as \emph{Augly} \cite{Papakipos2022-gq-augly}, \emph{Augmentor} \cite{augmentor}, \emph{Albumentations} \cite{ref_albumentations}, and \emph{imgaug} \cite{ref_imgaug} provide image-centric augmentation strategies including general-purpose transformations like rotations, warps, masking, and color modifications.
+In contrast, as seen in Table~\ref{tab:augmentation-library-comparison}, only \emph{Augraphy} offers a data augmentation library that supports imitating the corruptions commonly seen in document analysis corpora and is also easily integrated in modern machine learning training processes which rely on Python, including use of specialized paper, ink and post-processing pipelines not seen elsewhere.  In fact, we attempted to recreate the document in Figure~\ref{fig:intro} using \emph{Albumentations} in preparation for presenting such a comparison in this paper, but the results were so poor and unlike the target we aimed to reproduce that we felt our effort would not have been taken seriously.
+
+\emph{DocCreator}~\cite{ref_DocCreator} is the next best option, which provides an image-synthesizing tool for creating synthetic images that mimic common corruptions seen in document collections.  However, \emph{DocCreator} differs from \emph{Augraphy} in several crucial ways.
+The first difference is that \emph{DocCreator}'s augmentations are meant to imitate those seen in historical (e.g., ancient or medieval) documents, while \emph{Augraphy} is intended to replicate a wider variety of both historical and modern scenarios.
+\emph{DocCreator} was also written in the C++ programming language as a monolithic \emph{what-you-see-is-what-you-get (WYSIWYG)} tool, and does not have a scripting or API interface to enable use in a broader machine learning pipeline.
+\emph{Augraphy}, on the other hand, is written in Python and can be easily integrated into machine learning model development and evaluation pipelines, alongside other Python packages like PyTorch~\cite{ref_pytorch}.
 
 \subsection{Robustness Testing}
 
