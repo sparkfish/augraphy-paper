@@ -92,8 +92,6 @@ The \emph{Augraphy} library is designed to introduce realistic degradations to i
 
 An ongoing digital transformation has reduced everyday reliance on paper. However, major industries such as healthcare~\cite{menachemi2011benefits}, insurance~\cite{gatzert2016impact}, legal~\cite{staudt2015access}, financial services~\cite{chuen2017handbook}, government~\cite{albano2018role}, and education~\cite{alkhezzi2020factors} continue to produce physical documents that are later digitally archived.
 
-Paper documents accumulate physical damage and alterations through printing, scanning, photocopying and regular use. Real-world processes introduce many types of distortions that result in color changes, shadows in scanned documents, and degraded text where low ink, annotations, highlighters, or other markings add noise that hinder semantic access by digital means.
-
 \begin{figure}
     \centering
 
@@ -108,6 +106,8 @@ Paper documents accumulate physical damage and alterations through printing, sca
 
     \label{fig:intro}
 \end{figure}
+
+Paper documents accumulate physical damage and alterations through printing, scanning, photocopying and regular use. Real-world processes introduce many types of distortions that result in color changes, shadows in scanned documents, and degraded text where low ink, annotations, highlighters, or other markings add noise that hinder semantic access by digital means.
 
 Document image analysis tasks are impacted by the presence of such noise; high-level tasks like document classification and information extraction are frequently expected to perform well even on noisily-scanned document images.
 For instance, the RVL-CDIP document classification corpus \cite{harley2015icdar-rvlcdip} consists of scanned document images, many of which have substantial amounts of scanner-induced noise, as does the FUNSD form understanding benchmark \cite{jaume2019-funsd}.
@@ -183,23 +183,6 @@ Some techniques exist for introducing these features into images of documents, i
 \item The finished document image can be used as a texture and attached to a 3D mesh, then projected back to 2 dimensions to simulate physical deformation. DocCreator's 3D mesh support here is excellent and has inspired \emph{Augraphy} to add similar functionality in its roadmap. In the meantime, \emph{Augraphy} currently offers support for paper folds and book bindings.
 \end{enumerate}
 
-\section{Augraphy}
-
-\emph{Augraphy} is a lightweight Python package for applying realistic perturbations to document images. It is registered on the Python Package Index (PyPI) and can be installed simply using \colorbox{superlightgray}{\textbf{\texttt{pip install augraphy}}}.
-
-\emph{Augraphy} requires only a few commonly-used Python scientific computing or image handling packages, such as NumPy \cite{ref_numpy}, and has been tested on Windows, Linux, and Mac computing environments and supports recent major versions of Python 3. Below is a basic out-of-the-box \emph{Augraphy} pipeline demonstrating its usage:
-
-\begin{lstlisting}[language=Python, label={lst:sample-code}, caption={Augmenting a document image with \emph{Augraphy}.}]
-import augraphy; import cv2
-pipeline = augraphy.default_augraphy_pipeline()
-img = cv2.imread("image.png")
-data = pipeline.augment(img)
-augmented_img = data["output"]
-\end{lstlisting}
-
-\emph{Augraphy} is designed to be immediately useful with little effort, especially as part of a preprocessing step for training machine learning models, so care was taken to establish good defaults.
-\emph{Augraphy} provides \numAugraphyAugmentations ~unique augmentations, which may be sequenced into pipeline objects which carry out the image manipulation. The default \emph{Augraphy} pipeline (used in the code snippet above) makes use of all of these augmentations, with starting parameters selected after manual visual inspection of thousands of images.
-Users of the library can define directed acyclic graphs of image transformations via the \texttt{AugraphyPipeline} API, representing the passage of a document through real-world alterations.
 
 \begin{figure}
 \centering
@@ -218,6 +201,24 @@ After the ink and paper textures are separately computed, they are merged in the
 After ``printing", the document enters the post phase, wherein it may undergo modifications that might alter an already-printed document out in the world.
 Augmentations are available here which simulate the printed page being folded along multiple axes, marked by handwriting or color highlighter, faxed, photocopied, scanned, photographed, burned, stained, and so on.
 Figure~\ref{fig:pipeline} shows the individual phases of an example pipeline combining to produce a noised document image.
+
+\section{Augraphy}
+
+\emph{Augraphy} is a lightweight Python package for applying realistic perturbations to document images. It is registered on the Python Package Index (PyPI) and can be installed simply using \colorbox{superlightgray}{\textbf{\texttt{pip install augraphy}}}.
+
+\emph{Augraphy} requires only a few commonly-used Python scientific computing or image handling packages, such as NumPy \cite{ref_numpy}, and has been tested on Windows, Linux, and Mac computing environments and supports recent major versions of Python 3. Below is a basic out-of-the-box \emph{Augraphy} pipeline demonstrating its usage:
+
+\begin{lstlisting}[language=Python, label={lst:sample-code}, caption={Augmenting a document image with \emph{Augraphy}.}]
+import augraphy; import cv2
+pipeline = augraphy.default_augraphy_pipeline()
+img = cv2.imread("image.png")
+data = pipeline.augment(img)
+augmented_img = data["output"]
+\end{lstlisting}
+
+\emph{Augraphy} is designed to be immediately useful with little effort, especially as part of a preprocessing step for training machine learning models, so care was taken to establish good defaults.
+\emph{Augraphy} provides \numAugraphyAugmentations ~unique augmentations, which may be sequenced into pipeline objects which carry out the image manipulation. The default \emph{Augraphy} pipeline (used in the code snippet above) makes use of all of these augmentations, with starting parameters selected after manual visual inspection of thousands of images.
+Users of the library can define directed acyclic graphs of image transformations via the \texttt{AugraphyPipeline} API, representing the passage of a document through real-world alterations.
 
 \subsection{Augraphy Augmentations}
 
@@ -239,14 +240,14 @@ Here we find \texttt{BadPhotoCopy}, which uses added noise to generate an effect
         \textbf{Ink Phase} & \textbf{Paper Phase} & \textbf{Post Phase} & \textbf{Multiple} \\
         \midrule
         \textsf{BleedThrough} & \textsf{ColorPaper}& \textsf{BadPhotoCopy} & \textsf{BrightnessTexturize} \\
-        \textsf{LowInkLines} & \textsf{Watermark} & \textsf{BindingsAndFasteners} & \textsf{DirtyDrum} \\
-        \textsf{InkBleed} & \textsf{Gamma} & \textsf{BookBinding} & \textsf{DirtyRollers} \\
-        \textsf{Letterpress} & \textsf{LightingGradient} & \textsf{Folding} & \textsf{Dithering} \\
-        & \textsf{SubtleNoise} & \textsf{JPEG} & \textsf{Geometric}\\
+        \textsf{LowInkPeriodicLines} & \textsf{Watermark} & \textsf{BindingsAndFasteners} & \textsf{DirtyDrum} \\
+        \textsf{LowInkRandomLines} & \textsf{Gamma} & \textsf{BookBinding} & \textsf{DirtyRollers} \\
+        \textsf{InkBleed} & \textsf{LightingGradient} & \textsf{Folding} & \textsf{Dithering} \\
+        \textsf{Letterpress} & \textsf{SubtleNoise} & \textsf{JPEG} & \textsf{Geometric}\\
         & \textsf{DelaunayTessellation} & \textsf{Markup} & \textsf{NoiseTexturize}\\
         & \textsf{VoronoiTesselation} & \textsf{Faxify} & \textsf{Scribbles}\\
-        & \textsf{PatternGenerator}& \textsf{PageBorder} & \\
-        & & & \\
+        & \textsf{PatternGenerator}& \textsf{PageBorder} & \textsf{LinesDegradation}\\
+        & & & \textsf{Brightness}\\
         \bottomrule
     \end{tabular}}
     \label{tab:augmentations}
