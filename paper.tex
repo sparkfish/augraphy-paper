@@ -223,6 +223,11 @@ augmented_img = data["output"]
 \emph{Augraphy} provides \numAugraphyAugmentations ~unique augmentations, which may be sequenced into pipeline objects which carry out the image manipulation. The default \emph{Augraphy} pipeline (used in the code snippet above) makes use of all of these augmentations, with starting parameters selected after manual visual inspection of thousands of images.
 Users of the library can define directed acyclic graphs of image transformations via the \texttt{AugraphyPipeline} API, representing the passage of a document through real-world alterations.
 
+\begin{figure}
+\includegraphics[width=\textwidth]{figures/augmentation-matrix.png}
+\caption{Examples of some \emph{Augraphy} augmentations.} \label{fig2}
+\end{figure}
+
 \subsection{Augraphy Augmentations}
 
 \emph{Augraphy} provides \numAugraphyAugmentations ~out-of-the-box augmentations, listed in Table~\ref{tab:augmentations}.
@@ -322,11 +327,6 @@ Interoperability and flexibility are core requirements of any data augmentation 
 \smallskip
 \noindent\textbf{\texttt{NoiseGenerator}.} ~This class uses make blobs algorithm to generate mask of noises in different shape and location.
 
-\begin{figure}
-\includegraphics[width=\textwidth]{figures/augmentation-matrix.png}
-\caption{Examples of some \emph{Augraphy} augmentations.} \label{fig2}
-\end{figure}
-
 \section{Deep Learning with \emph{Augraphy}}
 \emph{Augraphy} aims to facilitate rapid dataset creation, advancing the state of the art for document image analysis tasks.
 This section describes a brief experiment in which \emph{Augraphy} was used to augment a new collection of clean documents, producing a new corpus which fills a feature gap in existing public datasets. This collection was used to train a denoising convolutional neural network capable of high-accuracy predictions, demonstrating \emph{Augraphy}'s utility for robust data augmentation.
@@ -349,15 +349,31 @@ Patches were taken from each of these images and used for the final training col
 
 Another new dataset --- \emph{ShabbyReal} --- was produced as part of the larger \emph{ShabbyPages} corpus \cite{ref_ShabbyPages}; this data was manually produced by applying sequences of physical operations to real paper. \emph{ShabbyReal} is fully out-of-distribution for this experiment, and also has a very high degree of diversity, providing good conditions for evaluating \emph{Augraphy}'s effect.
 
+\begin{figure}
+\centering
+\includegraphics[width=0.9\columnwidth]{figures/shabbyreal_denoised.png}
+\caption{Sample \emph{ShabbyReal} noisy images (left) and their denoised counterparts (right).}
+\label{fig:shabbyreal_denoised}
+\end{figure}
+
 \subsection{Training Regime}
 The NAFNet was given a large sample to learn from: for each image in the ShabbyPages set, we sampled ten patches of 400x400 pixels, using these to train the instance across just 16 epochs.
 
 The model was trained with mean squared error as the loss function, using the Adam optimizer and cosine annealing learning rate scheduler, then evaluated with the mean average error metric.
 
+\begin{figure}
+\centering
+\includegraphics[width=0.95\columnwidth]{figures/shabbypages_denoising.png}
+\caption{Sample \emph{ShabbyPages} noisy images (left), denoised by Shabby\_NAFNet (center), and groundtruth (right).}
+\label{fig:shabbypages_denoising}
+\end{figure}
+
+\begin{samepage}
 \subsection{Results}
 Sample predictions from the model on the validation task are presented in Figure \ref{fig:shabbyreal_denoised}. The SSIM score indicates that these models generalize very well, though they do overcompensate for shadowing features around text, by increasing the line thickness in the prediction, resulting in a bold font.
 
 To compare the model's performance on the validation task, we considered the root mean square error (RMSE), structural similarity index (SSIM), and peak signal-to-noise ratio (PSNR) metrics.
+\end{samepage}
 
 \begin{table}
 \centering
@@ -373,21 +389,7 @@ RMSE & 6.52\\
 \end{tabular}
 \end{table}
 
-\begin{figure}
-\centering
-\includegraphics[width=0.9\columnwidth]{figures/shabbyreal_denoised.png}
-\caption{Sample \emph{ShabbyReal} noisy images (left) and their denoised counterparts (right).}
-\label{fig:shabbyreal_denoised}
-\end{figure}
-
 As can be seen in Figure \ref{fig:shabbyreal_denoised}, the model was able to remove a significant amount of blur, line noise, shadowing from tire tracks, and watercoloring.
-
-\begin{figure}
-\centering
-\includegraphics[width=0.95\columnwidth]{figures/shabbypages_denoising.png}
-\caption{Sample \emph{ShabbyPages} noisy images (left), denoised by Shabby\_NAFNet (center), and groundtruth (right).}
-\label{fig:shabbypages_denoising}
-\end{figure}
 
 \section{Robustness Testing}
 In this section, we examine the use of \emph{Augraphy} to add noise which challenges existing models.
@@ -440,17 +442,14 @@ We see that all four models struggle on the \emph{Augraphy}-augmented data, with
 \end{figure}
 
 \section{Conclusion and Future Work}
-We presented \emph{Augraphy}, a framework for generating realistic synthetically-augmented datasets of document images.
-Other available image augmentation tools were examined and found to lack features needed for our purposes, motivating the creation of this library specifically targeting the types of alterations and degradations seen in document images.
+We presented \emph{Augraphy}, a framework licensed under the MIT open source license for generating realistic synthetically-augmented datasets of document images.
+Other available tools were examined and found to lack needed features, motivating the creation of this library specifically supporting alterations and degradations seen in document images.
 
-We described the process for using \emph{Augraphy} to create a new document image dataset containing synthetic real-world noise, then compared results obtained by training a convolutional NAFNet instance on this corpus.
+We described how to use \emph{Augraphy} to create a new document image dataset containing synthetic real-world noise, then compared results obtained by training a convolutional NAFNet instance on this corpus.
 
 Finally, we examined \emph{Augraphy}'s efficacy in generating confounding data for testing the robustness of document vision models.
 
-Future work on the \emph{Augraphy} library will focus on adding new types of augmentations, increasing performance to enable faster creation of larger datasets on commodity hardware, providing more scale-invariant support so that augmentations perform well at all document image resolutions, and responding to community-initiated feature requests.
-
-\emph{Augraphy} is licensed under the MIT open source license, and readers are invited to share feedback and participate in its development on GitHub.
-
+Future work on the \emph{Augraphy} library will focus on adding new types of augmentations, increasing performance to enable faster creation of larger datasets, providing more scale-invariant support for all document image resolutions, and responding to community-initiated feature requests.
 
 %
 % ---- Bibliography ----
