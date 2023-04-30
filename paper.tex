@@ -1,11 +1,8 @@
 \documentclass[runningheads]{llncs}
 \usepackage{graphicx}
 \usepackage[colorlinks]{hyperref}
-\hypersetup{
-    colorlinks = false,
-    linkbordercolor = {blue}
-}
 \usepackage{listings}
+\usepackage{enumitem}
 \usepackage{courier}
 \usepackage{booktabs}
 \usepackage[dvipsnames]{xcolor}
@@ -32,6 +29,11 @@
 % check mark and x for table
 \newcommand{\cmark}{{\color{ForestGreen}\ding{51}}}%
 \newcommand{\xmark}{{\color{Maroon}\ding{55}}}%
+
+\hypersetup{
+    colorlinks = false,
+    linkbordercolor = {blue}
+}
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -125,7 +127,7 @@ The resulting images are realistic, noisy versions of clean documents, as eviden
 
 Several research efforts have used \emph{Augraphy}: Larson et al. (2022) \cite{larson-2022-rvlcdip-ood} used \emph{Augraphy} to mimic scanner-like noise for evaluating document classifiers trained on RVL-CDIP; Jadhav et al (2022) \cite{jadhav2022pix2pix} used \emph{Augraphy} to generate noisy document images for training a document denoising GAN; and Kim et al. (2022) \cite{webvicob-2022-naver} used \emph{Augraphy} as part of a document generation pipeline for document understanding tasks.
 
-\begin{table}[]
+\begin{table}
     \centering
     \caption{Comparison of various image-based data augmentation libraries. Number of augmentations is a rough count, and many augmentations in other tools are what \emph{Augraphy} calls Utilities. Further, many single augmentations in \emph{Augraphy} --- geometric transforms, for example --- are represented by multiple classes in other libraries.}
     \resizebox{0.9\textwidth}{!}{
@@ -188,7 +190,7 @@ As referenced in the \emph{Related Work} section of this paper, many general-pur
 \begin{figure}
 \centering
 \scalebox{0.3}{
-\includegraphics[]{figures/pipeline.png}}
+\includegraphics{figures/pipeline.png}}
 \caption{Visualization of an \emph{Augraphy} pipeline, showing the composition of several image augmentations together with a specific paper background}
 \label{fig:pipeline}
 \end{figure}
@@ -232,7 +234,7 @@ Augmentations provided by the Paper Phase include \texttt{BrightnessTexturize}, 
 Finally, the Post Phase includes augmentations that imitate noisy-processes that occur after a document has been created.
 Here we find \texttt{BadPhotoCopy}, which uses added noise to generate an effect of dirty copier, and \texttt{BookBinding}, which creates an effect with shadow and curved lines to imitate how a page from a book might appear after capture by a flatbed scanner.
 
-\begin{table}[]
+\begin{table}
     \centering
     \caption{Individual \emph{Augraphy} augmentations for each augmentation phase, in suggested position within a pipeline. Augmentations that work well in more than one phase are listed in the last column.}
     \resizebox{0.9\textwidth}{!}{
@@ -275,16 +277,16 @@ In practice, these model the pipeline phases discussed previously with lists of 
 \smallskip
 \noindent\textbf{\texttt{AugmentationPipeline}.} ~The bulk of the heavy lifting in \emph{Augraphy} resides in the Augmentation pipeline, which is our abstraction over one or more events in a physical document's life.
 
-Consider the following sequence:
-\begin{quote}
-  \begin{enumerate}
+\smallskip
+\noindent~Consider the following sequence:
+\begin{enumerate}[leftmargin=4em]
   \item Ink is adhered to paper material during the initial printing of a document.
   \item The document is attached to a public bulletin board in a high-traffic area.
   \item The pages are annotated, defaced, and eventually torn away from their securing staples, flying away in the wind.
   \item Fifty years later, the tattered pages are discovered and turned over to library archivists.
   \item These conservationists use delicate tools to carefully position and record images of the document, storing these in a digital repository.
-  \end{enumerate}
-\end{quote}
+\end{enumerate}
+
 An \texttt{AugmentationPipeline} represents such document lifetimes by composing augmentations modeling each of these individual events, while collecting runtime metadata about augmentations and their parameters and storing copies of intermediate images, allowing for inspection and fine-tuning to achieve outputs with desired features, facilitating (re)production of documents as in Figure \ref{fig:intro}.
 
 Realistically reproducing effects in document images requires careful attention to how those effects are produced in the real world.
