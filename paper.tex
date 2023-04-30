@@ -139,7 +139,7 @@ Several research efforts have used \emph{Augraphy}: Larson et al. (2022) \cite{l
         \emph{imgaug} \cite{ref_imgaug} & 168 & \xmark & \cmark & \cmark & MIT \\
         \emph{Augly} \cite{Papakipos2022-gq-augly} & 34 & \xmark & \cmark & \cmark & MIT \\
         \emph{DocCreator} \cite{ref_DocCreator} & 12 & \cmark & \xmark & \xmark & LGPL-3.0 \\
-        \emph{Augraphy} (ours) & \numAugraphyAugmentations & \cmark & \cmark & \cmark & MIT\\
+        \textbf{\emph{Augraphy} (ours)} & \textbf{\numAugraphyAugmentations} & \cmark & \cmark & \cmark & \textbf{MIT}\\
     \bottomrule
     \end{tabular}}
     \label{tab:augmentation-library-comparison}
@@ -175,14 +175,15 @@ As referenced in the \emph{Related Work} section of this paper, many general-pur
 
 \emph{Augraphy}'s suite of augmentations was designed to faithfully reproduce the level of complexity in the document lifecycle as seen in the real world. Such real-world conditions and features have direct implementations either within the library or on the development roadmap.
 
-Some techniques exist for introducing these features into images of documents, including but not limited to the following:
+\begin{samepage}
+\noindent Some techniques exist for introducing these features into images of documents, including but not limited to the following:
 \begin{enumerate}
-\item Text can be generated independently of the paper texture, and can be overlaid onto the ``paper'' by a number of blending functions, allowing a variety of paper textures to be used.
+\item Text can be generated independently of the paper texture, overlaid onto the ``paper'' by a number of blending functions, allowing use of a variety of paper textures.
 \item Similarly, any markup features may be generated and overlaid by the same methods.
 \item Documents can be digitized with a commercial scanner, or converted to a continuous analog signal and back with a fax machine.
 \item The finished document image can be used as a texture and attached to a 3D mesh, then projected back to 2 dimensions to simulate physical deformation. DocCreator's 3D mesh support here is excellent and has inspired \emph{Augraphy} to add similar functionality in its roadmap. In the meantime, \emph{Augraphy} currently offers support for paper folds and book bindings.
 \end{enumerate}
-
+\end{samepage}
 
 \begin{figure}
 \centering
@@ -269,7 +270,7 @@ These also record a full copy of the augmentation runtime data, as well as any m
 
 \smallskip
 \noindent\textbf{\texttt{AugmentationSequence}.} ~A list of \texttt{Augmentation}s --- together with the intent to apply those Augmentations in sequence --- determines an \texttt{AugmentationSequence}, which is itself both an \texttt{Augmentation} and callable (behaves like a function).
-In practice, these are model the pipeline phases discussed previously; they are essentially lists of \texttt{Augmentation} constructor calls which produce callable \texttt{Augmentation} objects of the various flavors explored in \texttt{AugmentationSequences} are applied to the image during each of the \texttt{AugmentationPipeline} phases, and in each case yield the image, transformed by some of the Augmentations in the sequence.
+In practice, these model the pipeline phases discussed previously with lists of \texttt{Augmentation} constructor calls which produce callable \texttt{Augmentation} objects of the various flavors explored in \texttt{AugmentationSequences} applied to the image during each of the \texttt{AugmentationPipeline} phases, and in each case yield the image, transformed by some of the Augmentations in the sequence.
 
 \smallskip
 \noindent\textbf{\texttt{AugmentationPipeline}.} ~The bulk of the heavy lifting in \emph{Augraphy} resides in the Augmentation pipeline, which is our abstraction over one or more events in a physical document's life.
