@@ -276,8 +276,8 @@ Every augmentation contained in a pipeline has its own chance of being applied d
 These also record a full copy of the augmentation runtime data, as well as any metadata that might be relevant for debugging or other advanced use.
 
 \smallskip
-\noindent\textbf{\texttt{AugmentationSequence}.} ~A list of \texttt{Augmentation}s --- together with the intent to apply those Augmentations in sequence --- determines an \texttt{AugmentationSequence}, which is itself both an \texttt{Augmentation} and callable (behaves like a function).
-In practice, these model the pipeline phases discussed previously with lists of \texttt{Augmentation} constructor calls which produce callable \texttt{Augmentation} objects of the various flavors explored in \texttt{AugmentationSequences} applied to the image during each of the \texttt{AugmentationPipeline} phases, and in each case yield the image, transformed by some of the Augmentations in the sequence.
+\noindent\textbf{\texttt{AugmentationSequence}.} ~A list of \texttt{Augmentation}s --- intended to be applied in sequence --- determines an \texttt{AugmentationSequence}, which is itself both an \texttt{Augmentation} and callable (behaves like a function).
+In practice, these model the pipeline phases discussed previously with lists of \texttt{Augmentation} constructor calls which produce callable \texttt{Augmentation} objects of the various flavors explored in \texttt{AugmentationSequences} applied in each \texttt{AugmentationPipeline} phase, and in each case yield the image, transformed by some of the Augmentations in the sequence.
 
 \smallskip
 \noindent\textbf{\texttt{AugmentationPipeline}.} ~The bulk of the heavy lifting in \emph{Augraphy} resides in the Augmentation pipeline, which is our abstraction over one or more events in a physical document's life.
