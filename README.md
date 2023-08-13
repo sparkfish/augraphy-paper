@@ -21,7 +21,7 @@ _Augraphy_ provides several strategies to produce augmented versions of clean do
 | _[imgaug](https://github.com/aleju/imgaug)_            | 168                    | :x:              | :white_check_mark:  | :white_check_mark: | MIT |
 | _[Augly](https://github.com/facebo)_ | 34                     | :x:              | :white_check_mark:  | :white_check_mark: | MIT |
 | _[DocCreator](https://github.com/DocCreator/DocCreator)_   | 12                     | :white_check_mark: | :x:             | :x:     | LGPL-3.0    |
-| _**[Augraphy](https://github.com/sparkfish/augraphy) (ours)**_       | **26**                 | :white_check_mark: | :white_check_mark:  | :white_check_mark: | **MIT** |
+| _**[Augraphy](https://github.com/sparkfish/augraphy) (ours)**_       | **30+**                 | :white_check_mark: | :white_check_mark:  | :white_check_mark: | **MIT** |
 
 </div>
 
