@@ -62,13 +62,11 @@ If you used _Augraphy_ in your research, please cite the project and/or the pape
 BibTeX:
 ```
 @inproceedings{augraphy_paper,
-  author = {The Augraphy Project},
+  author = {Groleau, Alexander and Chee, Kok Wei and Larson, Stefan and Maini, Samay and Boarman, Jonathan},
   title = {Augraphy: A Data Augmentation Library for Document Images},
-  booktitle = {TBD},
+  booktitle = {Proceedings of the 17th International Conference on Document Analysis and Recognition ({ICDAR})},
   year = {2023},
-  pages = {Start page--End page},
-  doi = {TBD},
-  url = {TBD}
+  url = {https://arxiv.org/pdf/2208.14558.pdf}
 }
 
 @software{augraphy_library,
